@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzería Geométrica - Standalone</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .drop-shadow-glow { filter: drop-shadow(0 0 8px rgba(240, 192, 64, 0.6)); }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #C0392B;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #C0392B; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#FFF8E7] text-[#3E1F00]">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        const PALETTE = {
+            tomato: '#C0392B',
+            cream: '#FFF8E7',
+            brown: '#3E1F00',
+            cheese: '#F0C040',
+            olive: '#6B7C3A',
+            white: '#FFFFFF',
+            red: '#E74C3C',
+        };
+
+        const LEVELS = [
+            { id: 1, name: 'Aprendiz', rStep: 1, thetaStep: 1, margin: 15, multiplier: 1 },
+            { id: 2, name: 'Pizzero', rStep: 0.5, thetaStep: 1, margin: 8, multiplier: 1.5 },
+            { id: 3, name: 'Maestro', rStep: 0.5, thetaStep: 1, margin: 3, multiplier: 2.5 },
+        ];
+
+        const CUSTOMERS = [
+            { id: 1, name: 'Luigi', emoji: '👨‍🍳', personality: 'Amigable y tradicional.', color: '#C0392B' },
+            { id: 2, name: 'Sofia', emoji: '👩‍🔬', personality: 'Precisa y amante de la geometría.', color: '#2980B9' },
+            { id: 3, name: 'Marco', emoji: '👨‍💼', personality: 'Impaciente, le gustan las pizzas grandes.', color: '#27AE60' },
+            { id: 4, name: 'Giulia', emoji: '👩‍🎨', personality: 'Experimental, prefiere ángulos curiosos.', color: '#8E44AD' },
+        ];
+
+        // Lucide Icon Wrapper
+        const Icon = ({ name, size = 24, color = "currentColor", className = "", fill = "none" }) => {
+            const iconRef = useRef(null);
+            useEffect(() => {
+                if (iconRef.current) {
+                    const iconName = name.toLowerCase().replace(/([a-z])([A-Z])/g, '$1-$2');
+                    const lucideIcon = lucide.icons[name];
+                    if (lucideIcon) {
+                        iconRef.current.innerHTML = '';
+                        const svg = lucide.createIcons({
+                            icons: { [name]: lucideIcon },
+                            attrs: { size, color, class: className, fill }
+                        });
+                        // createIcons returns nothing, it replaces elements with data-lucide
+                    }
+                }
+            }, [name, size, color, className, fill]);
+            // Use a span with data-lucide for the library to find it
+            return <span ref={iconRef}><i data-lucide={name.toLowerCase().replace(/([a-z])([A-Z])/g, '$1-$2')}></i></span>;
+        };
+
+        const StarRating = ({ rating }) => (
+            <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                    <motion.div key={s} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: s * 0.1 }}>
+                        <Icon name="Star" size={24} fill={s <= rating ? PALETTE.cheese : 'transparent'} color={s <= rating ? PALETTE.cheese : '#ccc'} className={s <= rating ? 'drop-shadow-glow' : ''} />
+                    </motion.div>
+                ))}
+            </div>
+        );
+
+        function App() {
+            const [levelIdx, setLevelIdx] = useState(0);
+            const [score, setScore] = useState(0);
+            const [totalStars, setTotalStars] = useState(0);
+            const [ordersCompleted, setOrdersCompleted] = useState(0);
+            const [correctOrdersInLevel, setCorrectOrdersInLevel] = useState(0);
+            const [currentOrder, setCurrentOrder] = useState(null);
+            const [gameState, setGameState] = useState('start');
+            const [orderHistory, setOrderHistory] = useState([]);
+            const [infiniteUnlocked, setInfiniteUnlocked] = useState(false);
+            const [isInfiniteMode, setIsInfiniteMode] = useState(false);
+            const [lives, setLives] = useState(3);
+            const [infiniteSuccessCount, setInfiniteSuccessCount] = useState(0);
+            const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+            const [playerR, setPlayerR] = useState(8);
+            const [playerTheta, setPlayerTheta] = useState(90);
+            const [feedback, setFeedback] = useState(null);
+
+            const canvasRef = useRef(null);
+            const audioRef = useRef(null);
+            const currentLevel = LEVELS[levelIdx];
+
+            const radians = useMemo(() => (playerTheta * Math.PI) / 180, [playerTheta]);
+            const sectorArea = useMemo(() => (playerTheta / 360) * Math.PI * Math.pow(playerR, 2), [playerTheta, playerR]);
+            const arcLength = useMemo(() => (playerTheta / 360) * 2 * Math.PI * playerR, [playerTheta, playerR]);
+            const totalArea = useMemo(() => Math.PI * Math.pow(playerR, 2), [playerR]);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                const centerX = w / 2;
+                const centerY = h / 2;
+                const scale = 12;
+
+                ctx.clearRect(0, 0, w, h);
+
+                // Board
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 16 * scale, 0, Math.PI * 2);
+                ctx.fillStyle = '#3E1F00';
+                ctx.fill();
+                ctx.strokeStyle = '#2A1500';
+                ctx.lineWidth = 8;
+                ctx.stroke();
+
+                // Pizza Base (Crust)
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, playerR * scale, 0, Math.PI * 2);
+                ctx.fillStyle = '#D35400';
+                ctx.fill();
+
+                // Sauce Base
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, (playerR - 0.8) * scale, 0, Math.PI * 2);
+                ctx.fillStyle = '#C0392B';
+                ctx.fill();
+
+                // Cheese Sector
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                const startAngle = -Math.PI / 2;
+                const endAngle = startAngle + radians;
+                ctx.arc(centerX, centerY, (playerR - 0.8) * scale, startAngle, endAngle);
+                ctx.lineTo(centerX, centerY);
+                ctx.fillStyle = '#F1C40F';
+                ctx.fill();
+                ctx.strokeStyle = '#D4AC0D';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Pepperonis
+                const pepperoniCount = Math.min(6, Math.max(2, Math.floor(playerTheta / 50)));
+                for (let i = 0; i < pepperoniCount; i++) {
+                    const angleStep = radians / (pepperoniCount + 1);
+                    const angle = startAngle + (i + 1) * angleStep;
+                    const distFactor = i % 2 === 0 ? 0.4 : 0.7;
+                    const dist = distFactor * (playerR - 1.5) * scale;
+                    const px = centerX + dist * Math.cos(angle);
+                    const py = centerY + dist * Math.sin(angle);
+                    ctx.beginPath();
+                    ctx.arc(px, py, 0.6 * scale, 0, Math.PI * 2);
+                    ctx.fillStyle = '#A93226';
+                    ctx.fill();
+                    ctx.strokeStyle = '#7B241C';
+                    ctx.stroke();
+                }
+
+                // Labels
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 14px Inter';
+                ctx.textAlign = 'center';
+                const midAngle = startAngle + radians / 2;
+                ctx.fillText(`r = ${playerR}cm`, centerX + (playerR * scale * 0.6) * Math.cos(midAngle), centerY + (playerR * scale * 0.6) * Math.sin(midAngle));
+                ctx.fillText(`${playerTheta}°`, centerX, centerY - 20);
+            }, [playerR, playerTheta, radians]);
+
+            const generateOrder = (forcedLevelIdx) => {
+                let activeLevelIdx = forcedLevelIdx !== undefined ? forcedLevelIdx : levelIdx;
+                if (isInfiniteMode) activeLevelIdx = Math.random() > 0.5 ? 1 : 2;
+                const customer = CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)];
+                let targetR, targetTheta, targetArcLength;
+                if (activeLevelIdx === 0) {
+                    targetR = Math.floor(Math.random() * 12) + 3;
+                    targetTheta = (Math.floor(Math.random() * 36) + 1) * 10;
+                } else {
+                    targetR = (Math.floor(Math.random() * 24) + 6) / 2;
+                    targetTheta = Math.floor(Math.random() * 340) + 10;
+                }
+                targetArcLength = (targetTheta / 360) * 2 * Math.PI * targetR;
+                setCurrentOrder({ targetR, targetTheta, customer, targetArcLength });
+                setPlayerR(8);
+                setPlayerTheta(90);
+                setGameState('playing');
+            };
+
+            const startGame = (infinite = false) => {
+                setScore(0);
+                setTotalStars(0);
+                setOrdersCompleted(0);
+                setCorrectOrdersInLevel(0);
+                setOrderHistory([]);
+                setIsInfiniteMode(infinite);
+                setIsMusicPlaying(true);
+                if (!audioRef.current) {
+                    audioRef.current = new Audio('https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a7315b.mp3');
+                    audioRef.current.loop = true;
+                    audioRef.current.volume = 0.1;
+                }
+                audioRef.current.play().catch(() => {});
+                if (infinite) {
+                    setLives(3);
+                    setInfiniteSuccessCount(0);
+                    setLevelIdx(1);
+                    generateOrder(1);
+                } else {
+                    setLevelIdx(0);
+                    generateOrder(0);
+                }
+            };
+
+            const deliverPizza = () => {
+                let errorR = (Math.abs(playerR - currentOrder.targetR) / currentOrder.targetR) * 100;
+                let errorTheta = (Math.abs(playerTheta - currentOrder.targetTheta) / currentOrder.targetTheta) * 100;
+                let finalError = (errorR + errorTheta) / 2;
+                let stars = 1;
+                if (finalError <= 3) stars = 5;
+                else if (finalError <= 8) stars = 4;
+                else if (finalError <= 15) stars = 3;
+                else if (finalError <= 25) stars = 2;
+
+                const isSuccess = stars >= 4;
+                if (isSuccess) {
+                    setCorrectOrdersInLevel(prev => prev + 1);
+                    if (isInfiniteMode) setInfiniteSuccessCount(prev => prev + 1);
+                } else if (isInfiniteMode) {
+                    setLives(prev => prev - 1);
+                }
+
+                setScore(prev => prev + (stars * 100));
+                setTotalStars(prev => prev + stars);
+                setOrdersCompleted(prev => prev + 1);
+                setOrderHistory(prev => [...prev, { level: isInfiniteMode ? 'Infinito' : currentLevel.name, customer: currentOrder.customer, targetR: currentOrder.targetR, targetTheta: currentOrder.targetTheta, playerR, playerTheta, stars }]);
+                setFeedback({ stars, message: stars >= 4 ? "¡Perfecto!" : "¡Puedes mejorar!", errorR, errorTheta });
+                setGameState('feedback');
+            };
+
+            const nextOrder = () => {
+                if (isInfiniteMode && lives <= 0) { setGameState('gameOver'); return; }
+                if (correctOrdersInLevel >= 3 && levelIdx < LEVELS.length - 1) setGameState('levelUp');
+                else if (correctOrdersInLevel >= 3 && levelIdx === LEVELS.length - 1) { setGameState('history'); setInfiniteUnlocked(true); }
+                else generateOrder();
+            };
+
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-[#C0392B] p-3 rounded-2xl shadow-lg rotate-[-5deg]"><Icon name="Pizza" color="white" size={32} /></div>
+                            <div>
+                                <h1 className="text-4xl font-black tracking-tighter uppercase italic text-[#C0392B]">Pizzería Geométrica</h1>
+                                <p className="text-sm font-medium opacity-70 uppercase tracking-widest">Trattoria di Matematica</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-6 bg-white/80 backdrop-blur px-6 py-3 rounded-2xl shadow-sm border border-[#3E1F00]/5">
+                            <div className="text-center"><p className="text-[10px] uppercase font-bold opacity-50">Nivel</p><p className="text-xl font-black text-[#C0392B]">{currentLevel.name}</p></div>
+                            <div className="w-px h-8 bg-[#3E1F00]/10 self-center" />
+                            <div className="text-center"><p className="text-[10px] uppercase font-bold opacity-50">{isInfiniteMode ? 'Vidas' : 'Progreso'}</p><p className="text-xl font-black">{isInfiniteMode ? "❤️".repeat(lives) : `${correctOrdersInLevel}/3`}</p></div>
+                            <div className="w-px h-8 bg-[#3E1F00]/10 self-center" />
+                            <div className="text-center"><p className="text-[10px] uppercase font-bold opacity-50">Puntos</p><p className="text-xl font-black">{score}</p></div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto">
+                        {gameState === 'start' ? (
+                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto bg-white rounded-[2rem] p-12 shadow-2xl border-4 border-[#C0392B] text-center">
+                                <div className="mb-8 flex justify-center"><Icon name="Pizza" size={120} color="#C0392B" /></div>
+                                <h2 className="text-3xl font-black mb-4">¡Benvenuti a la Pizzería!</h2>
+                                <p className="text-lg mb-8 opacity-80">Aprende geometría mientras sirves a los clientes más exigentes. Ajusta el radio y el ángulo de cada porción para ganar estrellas.</p>
+                                <div className="flex flex-col gap-4">
+                                    <button onClick={() => startGame(false)} className="bg-[#C0392B] text-white px-12 py-4 rounded-full text-xl font-bold shadow-xl hover:scale-105 transition-transform flex items-center justify-center gap-3 mx-auto w-full max-w-xs">Modo Historia <Icon name="ChevronRight" /></button>
+                                    {infiniteUnlocked && <button onClick={() => startGame(true)} className="bg-[#F0C040] text-[#3E1F00] px-12 py-4 rounded-full text-xl font-bold shadow-xl hover:scale-105 transition-transform flex items-center justify-center gap-3 mx-auto w-full max-w-xs">Modo Infinito <Icon name="Play" /></button>}
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                                <div className="lg:col-span-4 space-y-6">
+                                    <AnimatePresence mode="wait">
+                                        {currentOrder && (
+                                            <motion.div key={currentOrder.customer.id} initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 50, opacity: 0 }} className="bg-white rounded-3xl p-6 shadow-lg border-b-4 border-[#3E1F00]/10">
+                                                <div className="flex items-center gap-4 mb-4">
+                                                    <div className="text-5xl bg-[#FFF8E7] w-20 h-20 flex items-center justify-center rounded-2xl shadow-inner">{currentOrder.customer.emoji}</div>
+                                                    <div><h3 className="text-xl font-black">{currentOrder.customer.name}</h3><p className="text-xs opacity-60 italic">{currentOrder.customer.personality}</p></div>
+                                                </div>
+                                                <div className="relative bg-[#FFF8E7] p-4 rounded-2xl border-2 border-dashed border-[#C0392B]/30">
+                                                    <p className="text-lg font-medium leading-tight">"¡Hola! Quiero una pizza de radio <span className="text-[#C0392B] font-bold">{currentOrder.targetR} cm</span> con un ángulo de <span className="text-[#C0392B] font-bold">{currentOrder.targetTheta}°</span>."</p>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    <div className="bg-white rounded-3xl p-8 shadow-lg space-y-8">
+                                        <div>
+                                            <div className="flex justify-between items-end mb-4"><label className="text-xs uppercase font-black tracking-widest opacity-50">Radio (r)</label><span className="text-3xl font-black text-[#C0392B]">{playerR}cm</span></div>
+                                            <input type="range" min="3" max="15" step={currentLevel.rStep} value={playerR} onChange={e => setPlayerR(parseFloat(e.target.value))} className="w-full h-3 bg-[#FFF8E7] rounded-full appearance-none cursor-pointer accent-[#C0392B]" />
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between items-end mb-4"><label className="text-xs uppercase font-black tracking-widest opacity-50">Ángulo (θ)</label><span className="text-3xl font-black text-[#C0392B]">{playerTheta}°</span></div>
+                                            <input type="range" min="10" max="360" step={currentLevel.thetaStep} value={playerTheta} onChange={e => setPlayerTheta(parseInt(e.target.value))} className="w-full h-3 bg-[#FFF8E7] rounded-full appearance-none cursor-pointer accent-[#C0392B]" />
+                                        </div>
+                                        <button onClick={deliverPizza} className="w-full bg-[#C0392B] text-white py-4 rounded-2xl text-lg font-bold shadow-lg hover:bg-[#A93226] transition-colors flex items-center justify-center gap-2">¡Entregar Pizza! 🍕</button>
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-5">
+                                    <div className="bg-white rounded-[2.5rem] p-4 shadow-xl border-8 border-white relative overflow-hidden aspect-square flex items-center justify-center">
+                                        <canvas ref={canvasRef} width={500} height={500} className="w-full h-full" />
+                                        <AnimatePresence>
+                                            {gameState === 'feedback' && feedback && (
+                                                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center">
+                                                    <StarRating rating={feedback.stars} />
+                                                    <h3 className="text-3xl font-black mb-2 text-[#C0392B]">{feedback.message}</h3>
+                                                    <div className="grid grid-cols-2 gap-4 mb-8 w-full max-w-xs">
+                                                        <div className="bg-[#FFF8E7] p-3 rounded-xl border border-[#C0392B]/10"><p className="text-[10px] uppercase font-bold opacity-50">Error Radio</p><p className="text-lg font-black">{feedback.errorR.toFixed(1)}%</p></div>
+                                                        <div className="bg-[#FFF8E7] p-3 rounded-xl border border-[#C0392B]/10"><p className="text-[10px] uppercase font-bold opacity-50">Error Ángulo</p><p className="text-lg font-black">{feedback.errorTheta.toFixed(1)}%</p></div>
+                                                    </div>
+                                                    <button onClick={nextOrder} className="bg-[#3E1F00] text-white px-8 py-3 rounded-full font-bold flex items-center gap-2">Siguiente Pedido <Icon name="ChevronRight" /></button>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-3">
+                                    <div className="bg-[#3E1F00] text-white rounded-3xl p-6 shadow-xl sticky top-8">
+                                        <div className="flex items-center gap-2 mb-6 border-b border-white/10 pb-4"><Icon name="Calculator" color="#F0C040" size={20} /><h3 className="text-lg font-black uppercase tracking-wider">Panel Educativo</h3></div>
+                                        <div className="space-y-5">
+                                            <div className="space-y-1"><p className="text-[10px] uppercase font-bold opacity-40">Radio (r)</p><p className="text-xl font-mono">{playerR.toFixed(1)} cm</p></div>
+                                            <div className="space-y-1"><p className="text-[10px] uppercase font-bold opacity-40">Ángulo (θ)</p><p className="text-xl font-mono">{playerTheta}°</p></div>
+                                            <div className="h-px bg-white/10 my-4" />
+                                            <div className="space-y-3">
+                                                <div className="bg-white/5 p-3 rounded-xl border border-white/5"><p className="text-[10px] uppercase font-bold opacity-40 mb-1">Ángulo en Radianes</p><p className="text-sm font-mono">θ × π/180 = <span className="text-[#F0C040]">{radians.toFixed(4)}</span> rad</p></div>
+                                                <div className="bg-white/5 p-3 rounded-xl border border-white/5"><p className="text-[10px] uppercase font-bold opacity-40 mb-1">Área del Sector</p><p className="text-sm font-mono">A = (θ/360)πr² = <span className="text-[#F0C040]">{sectorArea.toFixed(2)}</span> cm²</p></div>
+                                                <div className="bg-white/5 p-3 rounded-xl border border-white/5"><p className="text-[10px] uppercase font-bold opacity-40 mb-1">Longitud de Arco</p><p className="text-sm font-mono">L = (θ/360)2πr = <span className="text-[#F0C040]">{arcLength.toFixed(2)}</span> cm</p></div>
+                                                <div className="bg-white/5 p-3 rounded-xl border border-white/5"><p className="text-[10px] uppercase font-bold opacity-40 mb-1">Área Total</p><p className="text-sm font-mono">A = πr² = <span className="text-[#F0C040]">{totalArea.toFixed(2)}</span> cm²</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
