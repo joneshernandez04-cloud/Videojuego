@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍕 PizzaSector — La Pizzería Matemática</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#C0392B;--red-l:#E74C3C;--cream:#FFF8E7;--cream-d:#F5E6C8;
+  --brown:#3E1F00;--brown-m:#6B3A1F;--cheese:#F0C040;--cheese-d:#D4A017;
+  --olive:#6B7C3A;--olive-l:#8FA44A;--white:#FFFDF5;--sh:rgba(62,31,0,0.25);
+  --blue:#2980B9;--blue-l:#3498DB;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--cream);
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(192,57,43,0.1) 39px,rgba(192,57,43,0.1) 40px),
+  repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(192,57,43,0.1) 39px,rgba(192,57,43,0.1) 40px);
+  min-height:100vh;overflow-x:hidden;}
+
+/* ─── MENU ─── */
+#scMenu{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:28px;position:relative;overflow:hidden;}
+.bg-pizza{position:fixed;font-size:8rem;opacity:.04;user-select:none;pointer-events:none;}
+.menu-logo{font-family:'Fredoka One',cursive;font-size:clamp(2.8rem,6vw,4.5rem);color:var(--cheese);text-shadow:4px 5px 0 var(--brown),0 0 40px rgba(240,192,64,.3);line-height:1;}
+.menu-logo span{color:#fff;}
+.menu-sub{font-size:1.05rem;color:var(--brown-m);font-weight:700;margin-top:6px;letter-spacing:1px;}
+.menu-tag{font-size:.88rem;color:var(--brown-m);font-weight:600;opacity:.7;max-width:400px;text-align:center;line-height:1.5;}
+.menu-logo-wrap{text-align:center;animation:mDrop .8s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes mDrop{from{transform:translateY(-80px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.menu-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;animation:mRise .7s .2s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes mRise{from{transform:translateY(50px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.mc{background:var(--white);border:3px solid var(--brown-m);border-radius:20px;padding:22px 20px;width:195px;text-align:center;box-shadow:5px 5px 0 var(--brown-m);cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.mc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.3),transparent);border-radius:17px;}
+.mc:hover{transform:translateY(-6px) scale(1.03);}
+.mc.red{border-color:var(--red);box-shadow:5px 5px 0 var(--red);}
+.mc.red:hover{box-shadow:5px 11px 0 var(--red);}
+.mc.blue{border-color:var(--blue);box-shadow:5px 5px 0 var(--blue);}
+.mc.blue:hover{box-shadow:5px 11px 0 var(--blue);}
+.mc.grn{border-color:var(--olive);box-shadow:5px 5px 0 var(--olive);}
+.mc.grn:hover{box-shadow:5px 11px 0 var(--olive);}
+.mc-icon{font-size:3rem;margin-bottom:8px;display:block;}
+.mc-t{font-family:'Fredoka One',cursive;font-size:1.25rem;margin-bottom:5px;}
+.mc-t.red{color:var(--red);}.mc-t.blue{color:var(--blue);}.mc-t.grn{color:var(--olive);}
+.mc-d{font-size:.76rem;color:var(--brown-m);font-weight:600;line-height:1.4;}
+.mc-best{font-size:.72rem;color:var(--brown-m);font-weight:700;margin-top:4px;}
+.mbtn{font-family:'Fredoka One',cursive;font-size:.95rem;border:none;border-radius:50px;padding:8px 22px;cursor:pointer;margin-top:10px;transition:all .1s;position:relative;z-index:1;}
+.mbtn.red{background:var(--red);color:#fff;box-shadow:0 4px 0 var(--brown);}
+.mbtn.red:hover{background:var(--red-l);transform:translateY(-2px);}
+.mbtn.blue{background:var(--blue);color:#fff;box-shadow:0 4px 0 #1a5276;}
+.mbtn.blue:hover{background:var(--blue-l);transform:translateY(-2px);}
+.mbtn.grn{background:var(--olive);color:#fff;box-shadow:0 4px 0 #3d4a1f;}
+.mbtn.grn:hover{background:var(--olive-l);transform:translateY(-2px);}
+
+/* ─── GAME ─── */
+#scGame{display:none;}
+header{background:var(--red);background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.04) 0,rgba(0,0,0,.04) 2px,transparent 2px,transparent 8px);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 12px var(--sh);border-bottom:4px solid var(--brown);z-index:10;position:relative;}
+.logo{font-family:'Fredoka One',cursive;font-size:1.7rem;color:var(--cheese);text-shadow:2px 3px 0 var(--brown);cursor:pointer;}
+.logo span{color:#fff;}
+.logo:hover{opacity:.85;}
+.sb{display:flex;gap:12px;align-items:center;}
+.sbox{background:var(--brown);border:2px solid var(--cheese);border-radius:10px;padding:4px 11px;text-align:center;min-width:68px;}
+.sbox .sl{font-size:.56rem;color:var(--cheese);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.sbox .sv{font-family:'Fredoka One',cursive;font-size:1.25rem;color:#fff;line-height:1;}
+.lvlbanner{text-align:center;background:var(--brown);color:var(--cheese);font-family:'Fredoka One',cursive;font-size:.83rem;letter-spacing:2px;padding:4px 0;border-bottom:2px solid var(--brown-m);}
+.gcont{display:grid;grid-template-columns:255px 1fr 255px;gap:0;max-width:1080px;margin:0 auto;padding:14px 10px;align-items:start;}
+.lpanel{padding:11px;display:flex;flex-direction:column;gap:11px;}
+.sec-t{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--brown);border-bottom:3px solid var(--red);padding-bottom:3px;margin-bottom:3px;display:flex;align-items:center;gap:5px;}
+.ccard{background:var(--white);border:3px solid var(--brown-m);border-radius:16px;padding:13px;box-shadow:4px 4px 0 var(--brown-m);animation:sIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes sIn{from{transform:translateX(-60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.cav{font-size:3.2rem;text-align:center;line-height:1;margin-bottom:5px;display:block;animation:bIn .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes bIn{from{transform:scale(0);}to{transform:scale(1);}}
+.cname{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--red);text-align:center;margin-bottom:7px;}
+.sbbl{background:var(--cream-d);border:2px solid var(--cheese-d);border-radius:12px;padding:9px 11px;font-size:.79rem;color:var(--brown);font-weight:700;line-height:1.5;position:relative;}
+.sbbl::before{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--cheese-d);}
+.sbbl::after{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:var(--cream-d);}
+.oh{color:var(--red);font-size:.95rem;}
+.ospecs{margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.spbox{background:var(--brown);border-radius:8px;padding:5px 7px;text-align:center;}
+.spbox .spl{font-size:.56rem;color:var(--cheese);text-transform:uppercase;letter-spacing:.8px;font-weight:700;}
+.spbox .spv{font-family:'Fredoka One',cursive;font-size:1.2rem;color:#fff;}
+.spbox .spu{font-size:.6rem;color:#ccc;}
+.hlist{display:flex;flex-direction:column;gap:5px;max-height:170px;overflow-y:auto;}
+.hitem{background:var(--white);border:2px solid var(--cream-d);border-radius:8px;padding:5px 9px;display:flex;justify-content:space-between;align-items:center;font-size:.71rem;color:var(--brown);font-weight:600;}
+.hstars{color:var(--cheese-d);font-size:.72rem;}
+.pwrap{background:var(--brown);border-radius:50px;height:10px;width:100%;overflow:hidden;border:2px solid var(--brown-m);}
+.pbar{height:100%;background:linear-gradient(to right,var(--cheese-d),var(--cheese));border-radius:50px;transition:width .5s ease;}
+.plbl{font-size:.66rem;color:var(--brown-m);font-weight:700;margin-top:3px;text-align:center;}
+.cpanel{padding:11px 15px;display:flex;flex-direction:column;align-items:center;gap:11px;}
+.pwk{background:var(--white);border:3px solid var(--brown-m);border-radius:20px;padding:13px;box-shadow:5px 5px 0 var(--brown-m);display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;}
+#pizzaCanvas{border-radius:12px;display:block;}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:11px;width:100%;}
+.ctg{background:var(--cream-d);border:2px solid var(--brown-m);border-radius:12px;padding:9px 12px;}
+.clbl{font-family:'Fredoka One',cursive;font-size:.85rem;color:var(--brown);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
+.ccur{background:var(--red);color:#fff;font-family:'Fredoka One',cursive;font-size:.9rem;padding:2px 9px;border-radius:20px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:4px;background:linear-gradient(to right,var(--red) 0%,var(--red) var(--pct,50%),#ccc var(--pct,50%),#ccc 100%);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--cheese);border:3px solid var(--brown);cursor:pointer;box-shadow:0 2px 6px var(--sh);transition:transform .1s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+.rlbls{display:flex;justify-content:space-between;font-size:.61rem;color:var(--brown-m);margin-top:2px;font-weight:600;}
+.dbtn{font-family:'Fredoka One',cursive;font-size:1.2rem;background:var(--red);color:#fff;border:none;border-radius:50px;padding:10px 30px;cursor:pointer;box-shadow:0 5px 0 var(--brown),4px 9px 12px var(--sh);transition:all .1s;position:relative;overflow:hidden;}
+.dbtn::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,.15),transparent);border-radius:50px;}
+.dbtn:hover{background:var(--red-l);transform:translateY(-2px);box-shadow:0 7px 0 var(--brown);}
+.dbtn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--brown);}
+.epanel{padding:11px;display:flex;flex-direction:column;gap:11px;}
+.fcard{background:var(--white);border:3px solid var(--brown-m);border-radius:16px;padding:12px;box-shadow:4px 4px 0 var(--brown-m);}
+.fr{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px dashed var(--cream-d);font-size:.76rem;}
+.fr:last-child{border-bottom:none;}
+.fn{color:var(--brown-m);font-weight:700;flex:1;}
+.fe{color:var(--brown);font-size:.68rem;flex:1.3;text-align:center;font-style:italic;}
+.fv{font-family:'Fredoka One',cursive;font-size:.9rem;color:var(--red);flex:.8;text-align:right;transition:color .3s;}
+.fv.match{color:var(--olive);}
+.trow{background:rgba(240,192,64,.15);border-radius:6px;padding:3px 5px;margin:1px 0;}
+
+/* ─── MODALS ─── */
+.moverlay{position:fixed;inset:0;background:rgba(62,31,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;}
+.moverlay.show{opacity:1;pointer-events:all;}
+.rcard{background:var(--white);border:4px solid var(--brown-m);border-radius:24px;padding:26px 34px;text-align:center;box-shadow:8px 8px 0 var(--brown);max-width:390px;width:92%;transform:scale(.5);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+.moverlay.show .rcard{transform:scale(1);}
+.remoji{font-size:3.5rem;margin-bottom:5px;display:block;}
+.rtitle{font-family:'Fredoka One',cursive;font-size:1.45rem;color:var(--red);margin-bottom:5px;}
+.rcomm{font-size:.88rem;color:var(--brown);font-weight:600;margin-bottom:11px;}
+.srow{font-size:2.2rem;letter-spacing:4px;margin-bottom:11px;}
+.srow span{display:inline-block;animation:sPop .3s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes sPop{from{transform:scale(0) rotate(-30deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
+.ebd{background:var(--cream-d);border-radius:10px;padding:9px 13px;margin-bottom:11px;font-size:.78rem;color:var(--brown);font-weight:700;text-align:left;}
+.er{display:flex;justify-content:space-between;margin-bottom:3px;}
+.eg{color:var(--olive);}.eb{color:var(--red);}
+.nbtn{font-family:'Fredoka One',cursive;font-size:1rem;background:var(--olive);color:#fff;border:none;border-radius:50px;padding:9px 26px;cursor:pointer;box-shadow:0 4px 0 #3d4a1f;transition:all .1s;}
+.nbtn:hover{background:var(--olive-l);transform:translateY(-2px);}
+.nbtn:active{transform:translateY(2px);}
+.luoverlay{position:fixed;inset:0;background:rgba(62,31,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;}
+.luoverlay.show{opacity:1;pointer-events:all;}
+.lucard{background:var(--brown);border:4px solid var(--cheese);border-radius:24px;padding:34px 42px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);transform:scale(0);transition:transform .5s cubic-bezier(.34,1.56,.64,1);}
+.luoverlay.show .lucard{transform:scale(1);}
+.luemoji{font-size:4.5rem;display:block;margin-bottom:8px;}
+.lutitle{font-family:'Fredoka One',cursive;font-size:2.1rem;color:var(--cheese);text-shadow:2px 3px 0 rgba(0,0,0,.4);margin-bottom:6px;}
+.lusub{color:var(--cream);font-size:.92rem;font-weight:600;margin-bottom:16px;}
+.confetti-piece{position:fixed;width:10px;height:10px;opacity:0;pointer-events:none;z-index:300;border-radius:2px;}
+
+/* ─── TUTORIAL ─── */
+#tutOv{position:fixed;inset:0;z-index:500;display:none;pointer-events:none;}
+#tutOv.on{display:block;}
+#tutDark{display:none;}
+#tutSp{position:absolute;border-radius:12px;border:3px solid var(--cheese);box-shadow:0 0 0 9999px rgba(20,8,0,.82),0 0 24px rgba(240,192,64,.5);transition:all .42s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:502;}
+#tutCard{position:absolute;background:var(--white);border:3px solid var(--brown-m);border-radius:18px;padding:18px 20px;width:280px;box-shadow:5px 5px 0 var(--brown-m);z-index:503;transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:all;}
+.tbadge{display:inline-block;background:var(--red);color:#fff;font-family:'Fredoka One',cursive;font-size:.72rem;padding:2px 10px;border-radius:20px;margin-bottom:7px;}
+.ttitle{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--brown);margin-bottom:5px;}
+.ttext{font-size:.8rem;color:var(--brown-m);font-weight:600;line-height:1.55;margin-bottom:10px;}
+.tahint{background:var(--cheese);border-radius:8px;padding:5px 9px;font-size:.76rem;color:var(--brown);font-weight:800;margin-bottom:9px;display:none;text-align:center;}
+.tahint.on{display:block;}
+.tprog{display:flex;gap:4px;margin-bottom:9px;align-items:center;}
+.tdot{width:8px;height:8px;border-radius:50%;background:var(--cream-d);border:2px solid var(--brown-m);transition:background .3s;}
+.tdot.done{background:var(--olive);border-color:var(--olive);}
+.tdot.cur{background:var(--cheese);border-color:var(--cheese-d);width:18px;border-radius:4px;}
+.tbtn{font-family:'Fredoka One',cursive;font-size:.92rem;background:var(--red);color:#fff;border:none;border-radius:50px;padding:7px 20px;cursor:pointer;box-shadow:0 3px 0 var(--brown);transition:all .1s;}
+.tbtn:hover{background:var(--red-l);transform:translateY(-2px);}
+.tbtn:disabled{background:#bbb;box-shadow:0 3px 0 #888;cursor:not-allowed;transform:none;}
+.tarrow{position:absolute;font-size:2rem;z-index:504;pointer-events:none;animation:ab .8s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+@keyframes ab{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* ─── QUIZ ─── */
+#scQuiz{min-height:100vh;display:none;flex-direction:column;align-items:center;padding:18px;}
+.qhdr{width:100%;max-width:700px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:11px;}
+.qlogo{font-family:'Fredoka One',cursive;font-size:1.35rem;color:var(--brown);cursor:pointer;}
+.qlogo:hover{color:var(--red);}
+.qpw{flex:1;background:var(--brown);border-radius:50px;height:11px;border:2px solid var(--brown-m);overflow:hidden;}
+.qpb{height:100%;background:linear-gradient(to right,var(--blue),var(--blue-l));border-radius:50px;transition:width .5s ease;}
+.qcnt{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--brown);white-space:nowrap;}
+.qtimer-wrap{width:100%;max-width:700px;display:flex;align-items:center;gap:13px;margin-bottom:13px;}
+.qtring{width:52px;height:52px;position:relative;flex-shrink:0;}
+.qtring svg{transform:rotate(-90deg);}
+.tbg{fill:none;stroke:var(--cream-d);stroke-width:5;}
+.tfg{fill:none;stroke:var(--cheese);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .3s;}
+.tfg.urg{stroke:var(--red);}
+.tnum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--brown);}
+.qstreak{font-family:'Fredoka One',cursive;font-size:.88rem;color:var(--brown-m);}
+.qstreak .sv{color:var(--red);font-size:1rem;}
+.qcard{background:var(--white);border:3px solid var(--brown-m);border-radius:20px;padding:22px 24px;width:100%;max-width:700px;box-shadow:5px 5px 0 var(--brown-m);margin-bottom:14px;animation:qIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes qIn{from{transform:translateX(60px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.qtbdg{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:3px 11px;border-radius:20px;margin-bottom:9px;}
+.qt-area{background:rgba(192,57,43,.1);color:var(--red);}
+.qt-arc{background:rgba(41,128,185,.12);color:var(--blue);}
+.qt-angle{background:rgba(107,124,58,.12);color:var(--olive);}
+.qt-rad{background:rgba(240,192,64,.25);color:var(--cheese-d);}
+.qt-form{background:rgba(62,31,0,.08);color:var(--brown-m);}
+.qt-comp{background:rgba(107,124,58,.12);color:var(--olive);}
+.qq{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--brown);margin-bottom:5px;line-height:1.4;}
+.qgiven{font-size:.83rem;color:var(--brown-m);font-weight:700;margin-bottom:14px;}
+.qgiven span{background:var(--cheese);color:var(--brown);padding:2px 7px;border-radius:6px;margin:0 2px;font-weight:800;}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.qopt{background:var(--cream-d);border:2px solid var(--brown-m);border-radius:12px;padding:11px 13px;cursor:pointer;font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--brown);text-align:center;transition:all .15s;position:relative;overflow:hidden;}
+.qopt:hover:not(.lk){background:var(--cream);border-color:var(--cheese-d);transform:scale(1.02);}
+.qopt.cor{background:#d4edda;border-color:var(--olive);color:var(--olive);}
+.qopt.wrg{background:#f8d7da;border-color:var(--red);color:var(--red);}
+.qopt.lk{cursor:not-allowed;}
+.qopt .ol{font-size:.67rem;color:var(--brown-m);display:block;margin-bottom:2px;}
+.qexpl{background:rgba(107,124,58,.1);border:2px solid var(--olive);border-radius:12px;padding:11px 13px;margin-top:11px;font-size:.82rem;color:var(--brown);font-weight:600;line-height:1.5;display:none;}
+.qexpl.on{display:block;animation:fdIn .3s ease;}
+@keyframes fdIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.qnxt{font-family:'Fredoka One',cursive;font-size:1.05rem;background:var(--blue);color:#fff;border:none;border-radius:50px;padding:10px 30px;cursor:pointer;box-shadow:0 4px 0 #1a5276;transition:all .1s;display:none;}
+.qnxt:hover{background:var(--blue-l);transform:translateY(-2px);}
+.qnxt.on{display:inline-block;}
+.qrc{background:var(--white);border:4px solid var(--brown-m);border-radius:24px;padding:28px 32px;width:100%;max-width:560px;box-shadow:8px 8px 0 var(--brown-m);text-align:center;animation:qIn .5s cubic-bezier(.34,1.56,.64,1);}
+.qrt{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--brown);margin-bottom:5px;}
+.qrb{font-family:'Fredoka One',cursive;font-size:3.8rem;color:var(--red);line-height:1;}
+.qrs{font-size:.92rem;color:var(--brown-m);font-weight:700;margin-bottom:12px;}
+.qrg{font-family:'Fredoka One',cursive;font-size:1.4rem;margin-bottom:14px;}
+.qrbkd{display:flex;flex-direction:column;gap:4px;margin-bottom:16px;max-height:210px;overflow-y:auto;text-align:left;}
+.qritem{display:flex;align-items:center;gap:7px;font-size:.8rem;color:var(--brown);font-weight:600;padding:4px 0;border-bottom:1px dashed var(--cream-d);}
+.qritem:last-child{border-bottom:none;}
+.qricon{font-size:.95rem;flex-shrink:0;}
+.qrqt{flex:1;}
+.qrtag{font-size:.68rem;font-weight:800;padding:2px 7px;border-radius:20px;flex-shrink:0;}
+.qrcor{background:#d4edda;color:var(--olive);}
+.qrwrg{background:#f8d7da;color:var(--red);}
+.qrbtns{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;}
+.qrbtn{font-family:'Fredoka One',cursive;font-size:.98rem;border:none;border-radius:50px;padding:9px 22px;cursor:pointer;transition:all .1s;}
+.qrbtn.retry{background:var(--olive);color:#fff;box-shadow:0 4px 0 #3d4a1f;}
+.qrbtn.mmenu{background:var(--red);color:#fff;box-shadow:0 4px 0 var(--brown);}
+.qrbtn:hover{transform:translateY(-2px);}
+
+.mc.inf{border-color:#E67E22;box-shadow:5px 5px 0 #A04000;}
+.mc.inf:hover{box-shadow:5px 11px 0 #A04000;}
+.mc-t.inf{color:#E67E22;}
+.mbtn.inf{background:#E67E22;color:#fff;box-shadow:0 4px 0 #A04000;}
+.mbtn.inf:hover{background:#F39C12;transform:translateY(-2px);}
+.mc.locked-card{opacity:.45;pointer-events:none;filter:grayscale(.6);}
+/* lives */
+.lives-wrap{display:flex;gap:4px;align-items:center;}
+.life-icon{font-size:1.3rem;transition:all .3s;}
+.life-icon.lost{opacity:.2;filter:grayscale(1);transform:scale(.8);}
+/* completion overlay */
+.compoverlay{position:fixed;inset:0;background:rgba(20,10,0,.9);display:flex;align-items:center;justify-content:center;z-index:250;opacity:0;pointer-events:none;transition:opacity .3s;}
+.compoverlay.show{opacity:1;pointer-events:all;}
+.compcard{background:var(--white);border:4px solid var(--cheese);border-radius:24px;padding:28px 30px;max-width:540px;width:94%;box-shadow:8px 8px 0 var(--brown);transform:scale(.5);transition:transform .5s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
+.compoverlay.show .compcard{transform:scale(1);}
+.comp-title{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--brown);margin-bottom:4px;text-align:center;}
+.comp-sub{font-size:.85rem;color:var(--brown-m);font-weight:700;text-align:center;margin-bottom:14px;}
+.comp-hist{display:flex;flex-direction:column;gap:5px;margin-bottom:16px;max-height:240px;overflow-y:auto;}
+.comp-row{display:flex;justify-content:space-between;align-items:center;background:var(--cream-d);border-radius:8px;padding:6px 10px;font-size:.78rem;font-weight:700;color:var(--brown);}
+.comp-row-lbl{font-size:.62rem;color:var(--brown-m);text-transform:uppercase;letter-spacing:.5px;}
+.comp-stars{color:var(--cheese-d);}
+.comp-unlock{background:linear-gradient(135deg,#E67E22,#F39C12);color:#fff;border-radius:12px;padding:10px 14px;text-align:center;font-size:.85rem;font-weight:800;margin-bottom:14px;border:2px solid #A04000;}
+/* game over overlay */
+.govoverlay{position:fixed;inset:0;background:rgba(62,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:260;opacity:0;pointer-events:none;transition:opacity .3s;}
+.govoverlay.show{opacity:1;pointer-events:all;}
+.govcard{background:var(--white);border:4px solid var(--red);border-radius:24px;padding:30px 36px;max-width:400px;width:92%;box-shadow:8px 8px 0 var(--brown);text-align:center;transform:scale(.5);transition:transform .5s cubic-bezier(.34,1.56,.64,1);}
+.govoverlay.show .govcard{transform:scale(1);}
+.gov-emoji{font-size:4rem;display:block;margin-bottom:6px;}
+.gov-title{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--red);margin-bottom:6px;}
+.gov-score{font-family:'Fredoka One',cursive;font-size:3.5rem;color:var(--brown);line-height:1;}
+.gov-sub{font-size:.9rem;color:var(--brown-m);font-weight:700;margin-bottom:14px;}
+.gov-stat{background:var(--cream-d);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.82rem;font-weight:700;color:var(--brown);display:flex;justify-content:space-between;gap:10px;}
+/* disabled angle slider in radioMode */
+.ctg.given{border-color:var(--cheese-d);background:rgba(240,192,64,.12);}
+.ctg.given .clbl{color:var(--cheese-d);}
+input[type=range]:disabled{opacity:.5;cursor:not-allowed;}
+input[type=number]:disabled{opacity:.5;cursor:not-allowed;background:var(--cream-d)!important;}
+.retry-hint{background:rgba(41,128,185,.1);border:2px solid var(--blue);border-radius:10px;padding:10px 13px;margin-bottom:11px;font-size:.85rem;color:var(--brown);font-weight:700;line-height:1.6;text-align:center;}
+.retry-formula{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--blue);display:block;margin-top:4px;}
+/* milestone overlay */
+.milestoneoverlay{position:fixed;inset:0;background:rgba(20,8,0,.9);display:flex;align-items:center;justify-content:center;z-index:270;opacity:0;pointer-events:none;transition:opacity .3s;}
+.milestoneoverlay.show{opacity:1;pointer-events:all;}
+.milestonecard{background:var(--brown);border:4px solid var(--cheese);border-radius:28px;padding:38px 44px;max-width:440px;width:92%;text-align:center;box-shadow:0 0 60px rgba(240,192,64,.35),8px 8px 0 rgba(0,0,0,.4);transform:scale(0);transition:transform .55s cubic-bezier(.34,1.56,.64,1);}
+.milestoneoverlay.show .milestonecard{transform:scale(1);}
+.ms-emoji{font-size:5rem;display:block;margin-bottom:10px;}
+.ms-title{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--cheese);text-shadow:2px 3px 0 rgba(0,0,0,.5);margin-bottom:8px;line-height:1.15;}
+.ms-sub{color:var(--cream);font-size:.95rem;font-weight:700;margin-bottom:22px;line-height:1.5;}
+.ms-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.ms-btn{font-family:'Fredoka One',cursive;font-size:1rem;border:none;border-radius:50px;padding:10px 26px;cursor:pointer;transition:all .1s;}
+.ms-btn.cont{background:var(--olive);color:#fff;box-shadow:0 4px 0 #3d4a1f;}
+.ms-btn.cont:hover{background:var(--olive-l);transform:translateY(-2px);}
+.ms-btn.exit{background:var(--red);color:#fff;box-shadow:0 4px 0 var(--brown);}
+.ms-btn.exit:hover{background:var(--red-l);transform:translateY(-2px);}
+.music-btn:hover{background:var(--brown-m);transform:scale(1.1);}
+.music-btn.muted{opacity:.35;filter:grayscale(.8);}
+/* name modal */
+.nameoverlay{position:fixed;inset:0;background:rgba(62,31,0,.82);display:flex;align-items:center;justify-content:center;z-index:400;opacity:0;pointer-events:none;transition:opacity .3s;}
+.nameoverlay.show{opacity:1;pointer-events:all;}
+.namecard{background:var(--white);border:4px solid var(--cheese);border-radius:24px;padding:32px 36px;max-width:380px;width:92%;text-align:center;box-shadow:8px 8px 0 var(--brown);transform:scale(.5);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+.nameoverlay.show .namecard{transform:scale(1);}
+.name-emoji{font-size:3.5rem;display:block;margin-bottom:8px;}
+.name-title{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--brown);margin-bottom:6px;}
+.name-sub{font-size:.85rem;color:var(--brown-m);font-weight:600;margin-bottom:16px;}
+.name-input{width:100%;font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--brown);background:var(--cream-d);border:3px solid var(--brown-m);border-radius:12px;padding:10px 16px;text-align:center;outline:none;margin-bottom:14px;transition:border-color .2s;}
+.name-input:focus{border-color:var(--cheese-d);}
+.name-btn{font-family:'Fredoka One',cursive;font-size:1.1rem;background:var(--red);color:#fff;border:none;border-radius:50px;padding:10px 32px;cursor:pointer;box-shadow:0 4px 0 var(--brown);transition:all .1s;width:100%;}
+.name-btn:hover{background:var(--red-l);transform:translateY(-2px);}
+.name-btn:active{transform:translateY(2px);}
+/* player name badge in header */
+.player-badge{background:var(--brown);border:2px solid var(--cheese-d);border-radius:20px;padding:3px 12px;font-family:'Fredoka One',cursive;font-size:.85rem;color:var(--cheese);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;display:none;}
+@media(max-width:640px){.gcont{grid-template-columns:1fr;}.cg{grid-template-columns:1fr;}.menu-cards{flex-direction:column;align-items:center;}.qopts{grid-template-columns:1fr;}}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--cream-d);border-radius:3px;}
+::-webkit-scrollbar-thumb{background:var(--brown-m);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════ MENU ═══════ -->
+<div id="scMenu">
+  <span class="bg-pizza" style="top:-40px;left:-50px;transform:rotate(-15deg)">🍕</span>
+  <span class="bg-pizza" style="top:25%;right:-40px;transform:rotate(18deg)">🍕</span>
+  <span class="bg-pizza" style="bottom:8%;left:4%;transform:rotate(8deg)">🍕</span>
+  <span class="bg-pizza" style="bottom:-20px;right:8%;transform:rotate(-20deg)">🍕</span>
+
+  <div class="menu-logo-wrap">
+    <div class="menu-logo">🍕 Pizza<span>Sector</span></div>
+    <div class="menu-sub">La Pizzería Matemática</div>
+    <div class="menu-tag" style="margin:7px auto 0;">Aprende sectores circulares cocinando pizzas para clientes matemáticos</div>
+  </div>
+
+  <div class="menu-cards">
+    <div class="mc red" onclick="playSound('click');startGame()">
+      <span class="mc-icon">🍕</span>
+      <div class="mc-t red">¡Jugar!</div>
+      <div class="mc-d">Atiende clientes y construye pizzas con el radio y ángulo exactos.</div>
+      <div class="mc-best" id="menuBestScore">Mejor puntuación: —</div>
+      <button class="mbtn red">▶ Comenzar</button>
+    </div>
+    <div class="mc blue" onclick="playSound('click');startTutorial()">
+      <span class="mc-icon">📚</span>
+      <div class="mc-t blue">Tutorial</div>
+      <div class="mc-d">Aprende paso a paso las fórmulas de sectores circulares.</div>
+      <div class="mc-best">~3 minutos · Guiado</div>
+      <button class="mbtn blue">▶ Aprender</button>
+    </div>
+    <div class="mc grn" onclick="playSound('click');startQuiz()">
+      <span class="mc-icon">🧠</span>
+      <div class="mc-t grn">Modo Quiz</div>
+      <div class="mc-d">10 preguntas matemáticas sobre sectores. ¡Demuestra lo que sabes!</div>
+      <div class="mc-best" id="menuBestQuiz">Mejor quiz: —</div>
+      <button class="mbtn grn">▶ Quiz</button>
+    </div>
+    <div class="mc inf" id="infCard" onclick="playSound('click');startInfinite()">
+      <span class="mc-icon">♾️</span>
+      <div class="mc-t inf">Modo Infinito</div>
+      <div class="mc-d">Niveles 2 y 3 combinados. 3 vidas. ¿Cuántos pedidos correctos puedes hacer?</div>
+      <div class="mc-best" id="menuBestInf">Récord: —</div>
+      <button class="mbtn inf">▶ Infinito</button>
+    </div>
+  </div>
+  <div style="font-size:.72rem;color:var(--brown-m);opacity:.65;font-weight:600;text-align:center;line-height:1.7;">Área de Sector · Longitud de Arco · Radianes · Comparación de Sectores</div>
+</div>
+
+<!-- ═══════ GAME ═══════ -->
+<div id="scGame">
+<header>
+  <div class="logo" onclick="goMenu()">🍕 Pizza<span>Sector</span></div>
+  <span class="player-badge" id="playerBadge">👤 Jugador</span>
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Música">🎵</button>
+  <div class="sb">
+    <div class="sbox"><div class="sl">Puntos</div><div class="sv" id="scoreVal">0</div></div>
+    <div class="sbox"><div class="sl">Pedidos</div><div class="sv" id="ordersVal">0</div></div>
+    <div class="sbox"><div class="sl">⭐ Total</div><div class="sv" id="starsVal">0</div></div>
+    <div class="sbox" id="livesBox" style="display:none;"><div class="sl">Vidas</div><div class="lives-wrap" id="livesWrap"></div></div>
+  </div>
+</header>
+<div class="lvlbanner" id="lvlBanner">NIVEL 1 — APRENDIZ PIZZERO</div>
+<div class="gcont">
+  <!-- LEFT -->
+  <div class="lpanel">
+    <div class="sec-t">👤 Cliente</div>
+    <div class="ccard" id="custCard">
+      <span class="cav" id="custAv">👩</span>
+      <div class="cname" id="custNm">María</div>
+      <div class="sbbl" id="sbbl">¡Hola! Quiero una pizza de radio <span class="oh" id="ordR">—</span> cm con un ángulo de <span class="oh" id="ordA">—</span>°.</div>
+      <div class="ospecs" id="ospecs">
+        <div class="spbox"><div class="spl">Radio</div><div class="spv" id="specR">—</div><div class="spu">cm</div></div>
+        <div class="spbox"><div class="spl" id="specALbl">Ángulo</div><div class="spv" id="specA">—</div><div class="spu" id="specAUnit">grados</div></div>
+      </div>
+    </div>
+    <div class="sec-t">📈 Progreso</div>
+    <div class="fcard" style="padding:9px 13px;">
+      <div class="pwrap"><div class="pbar" id="progBar" style="width:0%"></div></div>
+      <div class="plbl" id="progLbl">0 / 5 pedidos para subir nivel</div>
+    </div>
+    <div class="sec-t">📋 Historial</div>
+    <div class="hlist" id="histList"><div style="font-size:.71rem;color:var(--brown-m);text-align:center;padding:8px;">Aún no hay pedidos...</div></div>
+  </div>
+  <!-- CENTER -->
+  <div class="cpanel">
+    <div class="pwk" id="pwk">
+      <canvas id="pizzaCanvas" width="305" height="305"></canvas>
+      <div class="cg">
+        <div class="ctg" id="rCtg">
+          <div class="clbl">📏 Radio <span class="ccur" id="rDisp">7 cm</span></div>
+          <input type="range" id="rSl" min="3" max="15" step="0.5" value="7">
+          <div class="rlbls"><span>3 cm</span><span>15 cm</span></div>
+        </div>
+        <div class="ctg" id="aCtg">
+          <div class="clbl">📐 <span id="aCtgLbl">Ángulo</span> <span class="ccur" id="aDisp">90°</span></div>
+          <input type="range" id="aSl" min="1" max="360" step="1" value="90">
+          <div class="rlbls"><span>1°</span><span>360°</span></div>
+          <input type="number" id="aNum" min="1" max="360" value="90"
+            style="margin-top:5px;width:100%;text-align:center;font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--brown);background:var(--white);border:2px solid var(--brown-m);border-radius:8px;padding:3px 8px;outline:none;"
+            placeholder="Escribe °">
+        </div>
+      </div>
+      <button class="dbtn" id="dBtn" onclick="playSound('click');deliverPizza()">🍕 ¡Entregar Pizza!</button>
+    </div>
+  </div>
+  <!-- RIGHT -->
+  <div class="epanel">
+    <div class="sec-t">📐 Fórmulas en Vivo</div>
+    <div class="fcard" id="fmlCard">
+      <div class="fr trow"><span class="fn">🎯 Pedido r</span><span class="fe">objetivo</span><span class="fv" id="fTR">—</span></div>
+      <div class="fr trow"><span class="fn" id="fTALbl">🎯 Pedido θ</span><span class="fe" id="fTAExpr">objetivo</span><span class="fv" id="fTA">—</span></div>
+      <div style="height:5px;"></div>
+      <div class="fr"><span class="fn">📏 Radio r</span><span class="fe">valor actual</span><span class="fv" id="fR">7 cm</span></div>
+      <div class="fr"><span class="fn">📐 Ángulo θ</span><span class="fe">valor actual</span><span class="fv" id="fA">90°</span></div>
+      <div class="fr"><span class="fn">🔢 Radianes</span><span class="fe">θ × π/180</span><span class="fv" id="fRd">1.571</span></div>
+      <div class="fr"><span class="fn">📦 Área sector</span><span class="fe">θ/360 × πr²</span><span class="fv" id="fAs">38.48</span></div>
+      <div class="fr"><span class="fn">⭕ Área total</span><span class="fe">π × r²</span><span class="fv" id="fAt">153.94</span></div>
+    </div>
+    <div class="sec-t">💡 Pista</div>
+    <div class="fcard" id="hintBox" style="font-size:.79rem;color:var(--brown);font-weight:600;line-height:1.55;">
+      Ajusta el <strong>radio</strong> y el <strong>ángulo</strong> para que coincidan con el pedido del cliente.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ QUIZ ═══════ -->
+<div id="scQuiz" style="display:none;flex-direction:column;align-items:center;padding:18px;">
+  <div class="qhdr">
+    <div class="qlogo" onclick="goMenu()">🍕 Quiz</div>
+    <div class="qpw"><div class="qpb" id="qProgBar" style="width:0%"></div></div>
+    <div class="qcnt" id="qCnt">1 / 10</div>
+  </div>
+  <div class="qtimer-wrap">
+    <div class="qtring">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <circle class="tbg" cx="26" cy="26" r="21"/>
+        <circle class="tfg" id="tCirc" cx="26" cy="26" r="21" stroke-dasharray="131.9" stroke-dashoffset="0"/>
+      </svg>
+      <div class="tnum" id="tNum">30</div>
+    </div>
+    <div class="qstreak">Racha: <span class="sv" id="qStreak">0</span> 🔥 &nbsp;|&nbsp; Correctas: <span class="sv" id="qCorr">0</span> / <span id="qTot">0</span></div>
+  </div>
+  <div class="qcard" id="qCard">
+    <div class="qtbdg qt-area" id="qBdg">Área del Sector</div>
+    <div class="qq" id="qQ">¿Cuál es el área?</div>
+    <div class="qgiven" id="qGiven"></div>
+    <div class="qopts" id="qOpts"></div>
+    <div class="qexpl" id="qExpl"></div>
+  </div>
+  <button class="qnxt" id="qNxt" onclick="quizNext()">Siguiente →</button>
+  <div id="qResWrap" style="display:none;width:100%;max-width:700px;flex-direction:column;align-items:center;"></div>
+</div>
+
+<!-- RATING OVERLAY -->
+<div class="moverlay" id="ratingOv">
+  <div class="rcard">
+    <span class="remoji" id="rEmoji">😊</span>
+    <div class="rtitle" id="rTitle">¡Buen trabajo!</div>
+    <div class="rcomm" id="rComm"></div>
+    <div class="srow" id="sRow"></div>
+    <div class="ebd" id="eBd"></div>
+    <div class="retry-hint" id="retryHint" style="display:none;"></div>
+    <div id="rPts" style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--olive);margin-bottom:11px;"></div>
+    <div id="tutFinalMsg" style="display:none;background:var(--cheese);border-radius:12px;padding:10px 14px;font-weight:700;color:var(--brown);margin-bottom:11px;font-size:.85rem;"></div>
+    <button class="nbtn" id="rNxtBtn" onclick="nextOrder()">¡Siguiente pedido! →</button>
+  </div>
+</div>
+
+<!-- LEVELUP OVERLAY -->
+<div class="luoverlay" id="luOv">
+  <div class="lucard">
+    <span class="luemoji">🎉</span>
+    <div class="lutitle" id="luTitle">¡SUBISTE DE NIVEL!</div>
+    <div class="lusub" id="luSub">Nivel 2 — Pizzero Experto</div>
+    <button class="nbtn" onclick="closeLevelUp()" style="font-size:.95rem;padding:8px 24px;">¡A seguir cocinando! 🍕</button>
+  </div>
+</div>
+
+<!-- COMPLETION OVERLAY (after level 3) -->
+<div class="compoverlay" id="compOv">
+  <div class="compcard">
+    <div class="comp-title" id="compTitle">🏆 ¡Nivel 3 Completado!</div>
+    <div class="comp-sub" id="compSub">Has demostrado dominar los sectores circulares. Aquí está tu historial de respuestas correctas:</div>
+    <div class="comp-hist" id="compHist"></div>
+    <div class="comp-unlock">🔓 ¡Modo Infinito desbloqueado! Aparece en el menú principal.</div>
+    <button class="nbtn" onclick="playSound('click');document.getElementById('compOv').classList.remove('show');goMenu();" style="width:100%;font-size:1.05rem;">🏠 Volver al Menú</button>
+  </div>
+</div>
+
+<!-- GAME OVER OVERLAY (infinite mode) -->
+<div class="govoverlay" id="govOv">
+  <div class="govcard">
+    <span class="gov-emoji">💀</span>
+    <div class="gov-title">¡GAME OVER!</div>
+    <div class="gov-score" id="govScore">0</div>
+    <div class="gov-sub">puntos acumulados</div>
+    <div class="gov-stat">
+      <span>Pedidos correctos</span>
+      <span id="govCorrect" style="color:var(--olive);font-family:'Fredoka One',cursive;font-size:1.2rem;">0</span>
+    </div>
+    <div class="gov-stat">
+      <span>Pedidos totales</span>
+      <span id="govTotal" style="color:var(--brown);font-family:'Fredoka One',cursive;font-size:1.2rem;">0</span>
+    </div>
+    <div id="govBest" style="font-size:.78rem;color:var(--olive);font-weight:800;margin-bottom:14px;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="nbtn" onclick="playSound('click');document.getElementById('govOv').classList.remove('show');startInfinite()" style="background:var(--red);">🔄 Reintentar</button>
+      <button class="nbtn" onclick="playSound('click');goMenu()">🏠 Menú</button>
+    </div>
+  </div>
+</div>
+
+<!-- MILESTONE OVERLAY (infinite mode pedido 10) -->
+<div class="milestoneoverlay" id="msOv">
+  <div class="milestonecard">
+    <span class="ms-emoji">🏆</span>
+    <div class="ms-title" id="msTitle">¡Eres increíble!</div>
+    <div class="ms-sub" id="msSub">Has completado 10 pedidos en el Modo Infinito.</div>
+    <div class="ms-btns">
+      <button class="ms-btn cont" onclick="playSound('click');closeMilestone()">¡Seguir cocinando! 🍕</button>
+      <button class="ms-btn exit" onclick="playSound('click');document.getElementById('msOv').classList.remove('show');goMenu()">🏠 Salir</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAME MODAL -->
+<div class="nameoverlay" id="nameOv">
+  <div class="namecard">
+    <span class="name-emoji">👨‍🍳</span>
+    <div class="name-title">¿Cómo te llamas?</div>
+    <div class="name-sub" id="nameSubText">Ingresa tu nombre para comenzar la aventura pizzera</div>
+    <input class="name-input" id="nameInput" type="text" maxlength="18" placeholder="Tu nombre aquí..." autocomplete="off">
+    <button class="name-btn" id="nameConfirmBtn" onclick="confirmName()">¡Empezar a cocinar! 🍕</button>
+  </div>
+</div>
+
+<!-- TUTORIAL OVERLAY -->
+<div id="tutOv">
+  <div id="tutDark"></div>
+  <div id="tutSp"></div>
+  <div id="tutCard">
+    <div class="tprog" id="tutProg"></div>
+    <div class="tbadge" id="tutBdg">Paso 1 de 8</div>
+    <div class="ttitle" id="tutTit">¡Bienvenido!</div>
+    <div class="ttext" id="tutTxt"></div>
+    <div class="tahint" id="tutAHint"></div>
+    <button class="tbtn" id="tutBtn" onclick="tutNext()">Siguiente →</button>
+  </div>
+  <div id="tutArrow" class="tarrow" style="display:none">⬇️</div>
+</div>
+
+<script>
+// ─── DATA ───
+const LEVELS=[
+  {name:'NIVEL 1 — APRENDIZ PIZZERO',label:'Aprendiz',margin:15,rStep:1,aStep:10,multi:1},
+  {name:'NIVEL 2 — PIZZERO EXPERTO',label:'Experto',margin:8,rStep:.5,aStep:5,multi:2},
+  {name:'NIVEL 3 — MAESTRO PIZZAIOLO',label:'Maestro',margin:3,rStep:.5,aStep:1,multi:3},
+];
+const CUSTOMERS=[
+  {name:'María',av:'👩',ph:['¡Hola! Quiero','¡Buenos días!','Por favor, dame']},
+  {name:'Carlos',av:'👨',ph:['¡Oye! Dame','¡Buenas! Quiero','Necesito']},
+  {name:'Abuela Rosa',av:'👵',ph:['Hijito, tráeme','¡Ay! Quiero','Necesito una']},
+  {name:'Chef Luca',av:'👨‍🍳',ph:['¡Voglio! Dame','Para mi familia,','¡Presto! Quiero']},
+  {name:'Sofía',av:'👧',ph:['¡Yay! Quiero','¡Por favor!','¡Emocionada! Quiero']},
+  {name:'Don Pedro',av:'👴',ph:['Joven, tráigame','Necesito exactamente','Por favor,']},
+];
+
+// ─── SOUND ENGINE ───
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+function resumeAC(){ if(AC.state==='suspended') AC.resume(); }
+
+function playSound(type){
+  try{
+    resumeAC();
+    const now=AC.currentTime;
+    const mk=(freq,type='sine',vol=0.15,dur=0.2,freqEnd=null)=>{
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.connect(g); g.connect(AC.destination);
+      o.type=type; o.frequency.setValueAtTime(freq,now);
+      if(freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd,now+dur);
+      g.gain.setValueAtTime(vol,now);
+      g.gain.exponentialRampToValueAtTime(0.001,now+dur);
+      return{o,g};
+    };
+    const chord=(freqs,vol=0.13,gap=0.1,dur=0.25)=>{
+      freqs.forEach((f,i)=>{
+        const t=now+i*gap;
+        const o=AC.createOscillator(),g=AC.createGain();
+        o.connect(g);g.connect(AC.destination);
+        o.frequency.value=f;
+        g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(vol,t+0.03);
+        g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+        o.start(t);o.stop(t+dur+0.05);
+      });
+    };
+    switch(type){
+      case 'tick':{const{o,g}=mk(700,'sine',0.06,0.04);o.start(now);o.stop(now+0.04);break;}
+      case 'deliver':{const{o,g}=mk(400,'sine',0.18,0.22,800);o.start(now);o.stop(now+0.25);break;}
+      case 'star5': chord([523,659,784,1047],0.18,0.11,0.35); break;
+      case 'star4': chord([523,659,784],0.15,0.10,0.28); break;
+      case 'star3':{const{o,g}=mk(440,'sine',0.12,0.28);o.start(now);o.stop(now+0.3);break;}
+      case 'star12':{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='sawtooth';o.frequency.setValueAtTime(320,now);o.frequency.exponentialRampToValueAtTime(180,now+0.45);g.gain.setValueAtTime(0.09,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.5);o.start(now);o.stop(now+0.5);break;}
+      case 'levelup': chord([392,523,659,784,1047],0.18,0.09,0.38); break;
+      case 'customer':{const{o,g}=mk(880,'sine',0.14,0.4);o.start(now);o.stop(now+0.42);break;}
+      case 'click':{const{o,g}=mk(600,'sine',0.09,0.07);o.start(now);o.stop(now+0.08);break;}
+      case 'qcorrect': chord([659,880],0.14,0.1,0.22); break;
+      case 'qwrong':{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type='square';o.frequency.setValueAtTime(200,now);o.frequency.exponentialRampToValueAtTime(130,now+0.22);g.gain.setValueAtTime(0.07,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.25);o.start(now);o.stop(now+0.25);break;}
+      case 'qtimeup': chord([300,200],0.10,0.15,0.22); break;
+      case 'match':{chord([659,784],0.10,0.06,0.18);break;}
+    }
+  }catch(e){}
+}
+
+// Throttled tick for sliders
+let _lastTick=0;
+function tickSound(){ const n=Date.now(); if(n-_lastTick>40){_lastTick=n;playSound('tick');} }
+
+// ─── BACKGROUND MUSIC ───
+const BgMusic=(()=>{
+  // Tarantella italiana — A major, 175 BPM (quarter note)
+  const Q=60/175; // seconds per quarter note
+  const V=0.075;  // 7.5% volume
+  // Frequencies
+  const E4=329.63,F4=349.23,F$4=369.99,G4=392,G$4=415.3,
+        A4=440,B4=493.88,C5=523.25,C$5=554.37,D5=587.33,E5=659.25,F$5=739.99,G$5=830.61,A5=880;
+  // Melody: [freq, quarter_note_duration]
+  const MEL=[
+    // Phrase 1 — ascending run
+    [A4,.5],[B4,.5],[C$5,.5],[D5,.5],
+    [E5,1],[D5,.5],[C$5,.5],
+    [B4,.5],[C$5,.5],[B4,.5],[A4,1],
+    // Phrase 2 — jump & bounce
+    [E5,.5],[E5,.5],[D5,.5],[C$5,.5],
+    [B4,1],[C$5,.5],[D5,.5],
+    [E5,.5],[D5,.5],[C$5,.5],[B4,.5],[A4,1],
+    // Phrase 3 — bridge
+    [D5,.5],[E5,.5],[F$5,.5],[E5,.5],
+    [D5,1],[C$5,.5],[B4,.5],
+    [A4,.5],[B4,.5],[C$5,.5],[D5,.5],
+    [E5,2],
+    // Phrase 4 — ending flourish
+    [A5,.5],[G$5,.5],[F$5,.5],[E5,.5],
+    [D5,1],[C$5,.5],[B4,.5],
+    [A4,.5],[G$4,.5],[A4,.5],[B4,.5],
+    [A4,2],
+  ];
+  let on=false,timer=null,next=0,idx=0;
+  function note(freq,t,dur){
+    // Main tone (sine - soft, flute-like)
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
+    o.type='sine';o.frequency.value=freq;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(V,t+0.025);
+    g.gain.setValueAtTime(V*.85,t+dur*.6);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur*.95);
+    o.start(t);o.stop(t+dur+.05);
+    // Soft harmonic overtone
+    const o2=AC.createOscillator(),g2=AC.createGain();
+    o2.connect(g2);g2.connect(AC.destination);
+    o2.type='triangle';o2.frequency.value=freq*2;
+    g2.gain.setValueAtTime(0,t);
+    g2.gain.linearRampToValueAtTime(V*.22,t+.018);
+    g2.gain.exponentialRampToValueAtTime(0.0001,t+dur*.55);
+    o2.start(t);o2.stop(t+dur*.6);
+  }
+  function sched(){
+    while(next<AC.currentTime+.35){
+      const [f,b]=MEL[idx%MEL.length];
+      const d=b*Q;
+      note(f,next,d*.88);
+      next+=d; idx++;
+    }
+    if(on) timer=setTimeout(sched,110);
+  }
+  return{
+    get isOn(){return on;},
+    start(){if(on)return;resumeAC();on=true;idx=0;next=AC.currentTime+.08;sched();},
+    stop(){on=false;if(timer)clearTimeout(timer);},
+    toggle(){on?this.stop():this.start();}
+  };
+})();
+
+function toggleMusic(){
+  BgMusic.toggle();
+  const btn=document.getElementById('musicBtn');
+  if(btn) btn.classList.toggle('muted',!BgMusic.isOn);
+}
+
+// ─── STATE ───
+let G={score:0,stars:0,orders:0,level:0,correctConsec:0,history:[],allCorrect:[],
+       tR:8,tA:120,pR:7,pA:90,tArc:0,arcMode:false,radioMode:false,
+       cust:null,tutMode:false,mode:'normal',lives:3,playerName:''};
+
+// ─── SCREENS ───
+function showSc(n){
+  document.getElementById('scMenu').style.display=n==='menu'?'flex':'none';
+  document.getElementById('scGame').style.display=n==='game'?'block':'none';
+  document.getElementById('scQuiz').style.display=n==='quiz'?'flex':'none';
+}
+function goMenu(){
+  playSound('click');
+  BgMusic.stop();
+  tutClose();
+  ['ratingOv','luOv','compOv','govOv','nameOv','msOv'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  try{const bs=parseInt(localStorage.getItem('psGameBest')||'0');if(G.mode==='normal'&&G.score>bs){localStorage.setItem('psGameBest',G.score);document.getElementById('menuBestScore').textContent='Mejor: '+G.score+' pts';}}catch(e){}
+  // Re-enable angle slider
+  document.getElementById('aSl').disabled=false;
+  document.getElementById('aCtg').classList.remove('given');
+  document.getElementById('livesBox').style.display='none';
+  showSc('menu');
+}
+function resetGameUI(){
+  document.getElementById('scoreVal').textContent='0';
+  document.getElementById('ordersVal').textContent='0';
+  document.getElementById('starsVal').textContent='0';
+  rSl.value=7;aSl.value=90;G.pR=7;G.pA=90;
+  updSBg(rSl);updSBg(aSl);
+  document.getElementById('rDisp').textContent='7 cm';
+  document.getElementById('aDisp').textContent='90°';
+  document.getElementById('aNum').value=90;
+  document.getElementById('aSl').disabled=false;
+  document.getElementById('aCtg').classList.remove('given');
+  document.getElementById('livesBox').style.display='none';
+}
+let _pendingMode='normal';
+function askName(mode){
+  _pendingMode=mode;
+  const sub=document.getElementById('nameSubText');
+  if(mode==='infinite') sub.textContent='Ingresa tu nombre para el Modo Infinito';
+  else sub.textContent='Ingresa tu nombre para comenzar la aventura pizzera';
+  const inp=document.getElementById('nameInput');
+  inp.value=G.playerName||'';
+  document.getElementById('nameOv').classList.add('show');
+  setTimeout(()=>inp.focus(),300);
+  inp.onkeydown=(e)=>{if(e.key==='Enter') confirmName();};
+}
+function confirmName(){
+  const raw=document.getElementById('nameInput').value.trim();
+  const name=raw||'Pizzero';
+  G.playerName=name;
+  document.getElementById('nameOv').classList.remove('show');
+  const badge=document.getElementById('playerBadge');
+  if(badge){badge.textContent='👤 '+name;badge.style.display='';}
+  if(_pendingMode==='infinite') _doStartInfinite();
+  else _doStartGame();
+}
+function startGame(){ askName('normal'); }
+function _doStartGame(){
+  G={score:0,stars:0,orders:0,level:0,correctConsec:0,history:[],allCorrect:[],
+     pR:7,pA:90,cust:null,tutMode:false,tR:8,tA:120,tArc:0,arcMode:false,radioMode:false,mode:'normal',lives:3,playerName:G.playerName};
+  resetGameUI(); updLvlUI(); renderHist();
+  showSc('game'); genOrder(); drawPizza(); updEdu(); updProg();
+  BgMusic.start();
+  const mb=document.getElementById('musicBtn');if(mb) mb.classList.toggle('muted',!BgMusic.isOn);
+}
+function startInfinite(){ askName('infinite'); }
+function _doStartInfinite(){
+  G={score:0,stars:0,orders:0,level:1,correctConsec:0,history:[],allCorrect:[],
+     pR:7,pA:90,cust:null,tutMode:false,tR:8,tA:120,tArc:0,arcMode:false,radioMode:false,mode:'infinite',lives:3,playerName:G.playerName};
+  resetGameUI();
+  document.getElementById('livesBox').style.display='';
+  updLivesDisplay();
+  document.getElementById('lvlBanner').textContent=`♾️ ${G.playerName} — MODO INFINITO · 3 VIDAS`;
+  document.getElementById('progBar').style.width='0%';
+  document.getElementById('progLbl').textContent='Modo Infinito · 3 vidas';
+  renderHist();
+  showSc('game'); genOrder(); drawPizza(); updEdu();
+  BgMusic.start();
+  const mb2=document.getElementById('musicBtn');if(mb2) mb2.classList.toggle('muted',!BgMusic.isOn);
+}
+
+// ─── CANVAS ───
+const cv=document.getElementById('pizzaCanvas');
+const cx=cv.getContext('2d');
+const SZ=305,CX=SZ/2,CY=SZ/2,MR=120;
+function cm2px(c){return(c/15)*MR;}
+
+// ─── PIZZA DRAWING ───
+// Pepperoni positions: [angle_deg_from_sector_start, radius_fraction_of_cheese_area]
+// 10 total, distributed in 3 rings, well separated
+const PEPPOS=[
+  // Inner ring (r≈0.28), 3 pepperoni
+  [38,0.28],[154,0.28],[272,0.28],
+  // Middle ring (r≈0.52), 4 pepperoni
+  [18,0.52],[108,0.52],[198,0.52],[304,0.52],
+  // Outer ring (r≈0.70), 3 pepperoni
+  [62,0.70],[168,0.70],[268,0.70],
+];
+// Cheese bubble spots: [norm_angle(0-1), norm_radius(0-1)] — deterministic, no random
+const CHEESE_SPOTS=[
+  [0.10,0.38],[0.28,0.26],[0.50,0.44],[0.70,0.32],[0.88,0.56],
+  [0.18,0.64],[0.42,0.72],[0.62,0.56],[0.82,0.68],[0.36,0.46],
+];
+
+function drawPizza(){
+  cx.clearRect(0,0,SZ,SZ);
+  const r=G.pR, deg=G.pA, rPx=cm2px(r);
+  const SA=-Math.PI/2, EA=SA+deg*Math.PI/180;
+  _drawBoard();
+  if(rPx<6){cx.beginPath();cx.arc(CX,CY,5,0,Math.PI*2);cx.fillStyle='#fff';cx.fill();return;}
+  _drawFullPizzaBase(rPx);
+  _drawSector(rPx,SA,EA,deg);
+  _drawRadiusLines(rPx,SA,EA);
+  const ad=Math.min(rPx*.4,46);
+  drawLabel(`r=${r}cm`,CX+Math.cos(SA)*rPx*.52+10,CY+Math.sin(SA)*rPx*.52-10);
+  drawLabel(`${deg}°`,CX+Math.cos(SA+(EA-SA)/2)*ad,CY+Math.sin(SA+(EA-SA)/2)*ad);
+}
+
+function _drawBoard(){
+  const bg=cx.createRadialGradient(CX,CY,10,CX,CY,145);
+  bg.addColorStop(0,'#C8922A');bg.addColorStop(.5,'#A0722A');bg.addColorStop(1,'#7A5520');
+  cx.beginPath();cx.arc(CX,CY,142,0,Math.PI*2);cx.fillStyle=bg;cx.fill();
+  cx.save();cx.beginPath();cx.arc(CX,CY,142,0,Math.PI*2);cx.clip();
+  for(let i=-140;i<140;i+=12){cx.beginPath();cx.moveTo(CX+i,CY-150);cx.lineTo(CX+i+20,CY+150);cx.strokeStyle='rgba(255,255,255,.04)';cx.lineWidth=5;cx.stroke();}
+  cx.restore();
+  cx.beginPath();cx.arc(CX,CY,142,0,Math.PI*2);cx.strokeStyle='#5A3A10';cx.lineWidth=5;cx.stroke();
+}
+
+function _drawFullPizzaBase(rPx){
+  const cw=Math.max(5,rPx*0.11), inner=rPx-cw;
+  // Crust ring
+  const cg=cx.createRadialGradient(CX,CY,inner*.85,CX,CY,rPx);
+  cg.addColorStop(0,'#C47828');cg.addColorStop(.55,'#B06418');cg.addColorStop(1,'#7A3808');
+  cx.beginPath();cx.arc(CX,CY,rPx,0,Math.PI*2);cx.fillStyle=cg;cx.fill();
+  // Sauce base
+  cx.beginPath();cx.arc(CX,CY,inner,0,Math.PI*2);cx.fillStyle='#A82810';cx.fill();
+  // Cheese base (dim — not in sector)
+  const chg=cx.createRadialGradient(CX,CY,0,CX,CY,inner*.96);
+  chg.addColorStop(0,'#C89828');chg.addColorStop(.65,'#B48018');chg.addColorStop(1,'#906010');
+  cx.beginPath();cx.arc(CX,CY,inner*.96,0,Math.PI*2);cx.fillStyle=chg;cx.fill();
+  // Outer crust stroke
+  cx.beginPath();cx.arc(CX,CY,rPx,0,Math.PI*2);cx.strokeStyle='#581F06';cx.lineWidth=2.5;cx.stroke();
+}
+
+function _drawSector(rPx,SA,EA,deg){
+  const cw=Math.max(5,rPx*0.11), inner=rPx-cw;
+  cx.save();
+  // Clip to sector wedge
+  cx.beginPath();cx.moveTo(CX,CY);cx.arc(CX,CY,rPx+1,SA,EA);cx.closePath();cx.clip();
+
+  // --- Crust (bright golden-brown) ---
+  const cg=cx.createRadialGradient(CX,CY,inner*.82,CX,CY,rPx);
+  cg.addColorStop(0,'#E09A40');cg.addColorStop(.38,'#CC7C22');cg.addColorStop(.75,'#A85A10');cg.addColorStop(1,'#7A3808');
+  cx.beginPath();cx.arc(CX,CY,rPx,SA,EA);cx.lineTo(CX,CY);cx.fillStyle=cg;cx.fill();
+
+  // Crust edge bumps (slight texture)
+  for(let a=SA+0.15;a<EA-0.05;a+=0.22){
+    const bx=CX+Math.cos(a)*(rPx-cw*.35), by=CY+Math.sin(a)*(rPx-cw*.35);
+    cx.beginPath();cx.arc(bx,by,cw*.28,0,Math.PI*2);
+    cx.fillStyle='rgba(255,200,100,0.12)';cx.fill();
+  }
+
+  // --- Tomato sauce ---
+  cx.beginPath();cx.arc(CX,CY,inner,SA,EA);cx.lineTo(CX,CY);cx.fillStyle='#C83010';cx.fill();
+
+  // --- Cheese layer ---
+  const chg=cx.createRadialGradient(CX,CY-inner*.08,3,CX,CY,inner*.97);
+  chg.addColorStop(0,'#FAEA6A');chg.addColorStop(.38,'#F2CA38');chg.addColorStop(.74,'#DCAA1C');chg.addColorStop(1,'#BC8A0C');
+  cx.beginPath();cx.arc(CX,CY,inner*.97,SA,EA);cx.lineTo(CX,CY);cx.fillStyle=chg;cx.fill();
+
+  // Cheese bubble spots (melted, slightly darker)
+  const span=EA-SA;
+  CHEESE_SPOTS.forEach(([aN,rN])=>{
+    const angle=SA+aN*span, rad2=rN*inner*.88;
+    const bx=CX+Math.cos(angle)*rad2, by=CY+Math.sin(angle)*rad2;
+    const bg2=cx.createRadialGradient(bx,by,0,bx,by,4.5);
+    bg2.addColorStop(0,'rgba(165,100,8,.55)');bg2.addColorStop(1,'rgba(165,100,8,0)');
+    cx.beginPath();cx.arc(bx,by,4.5,0,Math.PI*2);cx.fillStyle=bg2;cx.fill();
+  });
+
+  // --- Pepperoni ---
+  const pepR=Math.max(3.5,Math.min(rPx*0.082,9));
+  PEPPOS.forEach(([aDeg,rFrac])=>{
+    if(aDeg>=deg) return; // outside current sector angle
+    const pAngle=SA+aDeg*Math.PI/180;
+    const pRad=rFrac*inner*0.86;
+    if(pRad<pepR+3||pRad+pepR>inner) return;
+    const px=CX+Math.cos(pAngle)*pRad, py=CY+Math.sin(pAngle)*pRad;
+    // Shadow
+    cx.beginPath();cx.arc(px+1,py+1.2,pepR,0,Math.PI*2);
+    cx.fillStyle='rgba(0,0,0,0.22)';cx.fill();
+    // Body gradient
+    const pg=cx.createRadialGradient(px-pepR*.28,py-pepR*.28,1,px,py,pepR);
+    pg.addColorStop(0,'#E64830');pg.addColorStop(.5,'#C42018');pg.addColorStop(1,'#881010');
+    cx.beginPath();cx.arc(px,py,pepR,0,Math.PI*2);cx.fillStyle=pg;cx.fill();
+    // Edge
+    cx.beginPath();cx.arc(px,py,pepR,0,Math.PI*2);cx.strokeStyle='rgba(55,0,0,.55)';cx.lineWidth=1;cx.stroke();
+    // Fat/marbling spots (3 tiny dots in triangle arrangement)
+    [[28,0.36],[148,0.36],[268,0.36]].forEach(([da,dr])=>{
+      const sx=px+Math.cos(da*Math.PI/180)*pepR*dr, sy=py+Math.sin(da*Math.PI/180)*pepR*dr;
+      cx.beginPath();cx.arc(sx,sy,Math.max(1,pepR*.13),0,Math.PI*2);
+      cx.fillStyle='rgba(255,210,190,.62)';cx.fill();
+    });
+  });
+
+  cx.restore();
+
+  // Sector outline (white border)
+  cx.beginPath();cx.moveTo(CX,CY);cx.arc(CX,CY,rPx,SA,EA);cx.closePath();
+  cx.strokeStyle='rgba(255,255,255,.65)';cx.lineWidth=2;cx.stroke();
+}
+
+function _drawRadiusLines(rPx,SA,EA){
+  cx.setLineDash([5,4]);cx.strokeStyle='rgba(255,255,255,.75)';cx.lineWidth=1.5;
+  cx.beginPath();cx.moveTo(CX,CY);cx.lineTo(CX+Math.cos(SA)*rPx,CY+Math.sin(SA)*rPx);cx.stroke();
+  cx.beginPath();cx.moveTo(CX,CY);cx.lineTo(CX+Math.cos(EA)*rPx,CY+Math.sin(EA)*rPx);cx.stroke();
+  cx.setLineDash([]);
+  cx.beginPath();cx.arc(CX,CY,28,SA,EA);cx.strokeStyle='rgba(255,255,255,.92)';cx.lineWidth=2.5;cx.stroke();
+  cx.beginPath();cx.arc(CX,CY,5,0,Math.PI*2);cx.fillStyle='#fff';cx.fill();
+  cx.strokeStyle='#3E1F00';cx.lineWidth=1.5;cx.stroke();
+}
+
+function drawLabel(txt,x,y){
+  cx.font='bold 11px Nunito,sans-serif';
+  const w=cx.measureText(txt).width;
+  cx.fillStyle='rgba(0,0,0,.72)';
+  cx.beginPath();cx.roundRect(x-w/2-4,y-9,w+8,16,4);cx.fill();
+  cx.fillStyle='#fff';cx.textAlign='center';cx.textBaseline='middle';
+  cx.fillText(txt,x,y);cx.textAlign='left';cx.textBaseline='alphabetic';
+}
+
+// ─── SLIDERS ───
+const rSl=document.getElementById('rSl');
+const aSl=document.getElementById('aSl');
+function updSBg(s){const p=((s.value-s.min)/(s.max-s.min)*100).toFixed(1)+'%';s.style.setProperty('--pct',p);}
+
+rSl.addEventListener('input',()=>{
+  G.pR=+rSl.value; tickSound();
+  const rd=document.getElementById('rDisp');
+  if(rd) rd.textContent=G.pR+' cm';
+  updSBg(rSl); drawPizza(); updEdu(); updHint();
+  if(G.tutMode) tutCheck();
+});
+aSl.addEventListener('input',()=>{
+  if(G.radioMode) return;
+  G.pA=+aSl.value; tickSound();
+  document.getElementById('aDisp').textContent=G.pA+'°';
+  document.getElementById('aNum').value=G.pA;
+  updSBg(aSl); drawPizza(); updEdu(); updHint();
+  if(G.tutMode) tutCheck();
+});
+
+const aNum=document.getElementById('aNum');
+aNum.addEventListener('input',()=>{
+  if(G.radioMode) return;
+  let v=parseInt(aNum.value)||1;
+  v=Math.max(1,Math.min(360,v));
+  G.pA=v; tickSound();
+  aSl.value=v; updSBg(aSl);
+  document.getElementById('aDisp').textContent=v+'°';
+  drawPizza(); updEdu(); updHint();
+  if(G.tutMode) tutCheck();
+});
+aNum.addEventListener('blur',()=>{
+  let v=parseInt(aNum.value)||1;
+  v=Math.max(1,Math.min(360,v));
+  aNum.value=v;
+});
+
+// ─── EDU PANEL ───
+function updEdu(){
+  const r=G.pR,a=G.pA;
+  document.getElementById('fR').textContent=r+' cm';
+  document.getElementById('fA').textContent=a+'°';
+  document.getElementById('fRd').textContent=(a*Math.PI/180).toFixed(3)+' rad';
+  document.getElementById('fAs').textContent=((a/360)*Math.PI*r*r).toFixed(2)+' cm²';
+  document.getElementById('fAt').textContent=(Math.PI*r*r).toFixed(2)+' cm²';
+  document.getElementById('fR').className='fv'+(Math.abs(r-G.tR)/G.tR<.05?' match':'');
+  document.getElementById('fA').className='fv'+(Math.abs(a-G.tA)/G.tA<.05?' match':'');
+}
+function updTarget(){
+  if(G.radioMode){
+    document.getElementById('fTR').textContent='¿? cm';
+    document.getElementById('fTALbl').textContent='🎯 Ángulo dado';
+    document.getElementById('fTAExpr').textContent='dato';
+    document.getElementById('fTA').textContent=G.tA+'°';
+  } else if(G.arcMode){
+    document.getElementById('fTR').textContent=G.tR+' cm';
+    document.getElementById('fTALbl').textContent='〰️ Arco pedido';
+    document.getElementById('fTAExpr').textContent='calcular θ';
+    document.getElementById('fTA').textContent=G.tArc+' cm';
+  } else {
+    document.getElementById('fTR').textContent=G.tR+' cm';
+    document.getElementById('fTALbl').textContent='🎯 Pedido θ';
+    document.getElementById('fTAExpr').textContent='objetivo';
+    document.getElementById('fTA').textContent=G.tA+'°';
+  }
+}
+function updHint(){
+  if(G.radioMode){
+    document.getElementById('hintBox').innerHTML=
+      '<span style="font-size:.82rem;color:var(--blue);font-weight:800;">💡 r = (L × 360) / (2π × θ)</span>';
+    return;
+  }
+  if(G.arcMode){
+    document.getElementById('hintBox').innerHTML=
+      '<span style="font-size:.82rem;color:var(--blue);font-weight:800;">💡 θ = (L × 360) / (2π × r)</span>';
+    return;
+  }
+  document.getElementById('hintBox').innerHTML=
+    '<span style="font-size:.82rem;color:var(--blue);font-weight:800;">💡 A = (θ/360) × π × r²</span>';
+}
+
+// ─── GAME LOGIC ───
+const ARC_POOL=[30,36,40,45,60,72,80,90,100,108,120,135,144,150,160,180,200,210,216,240,252,270,288,300,315,320,330];
+
+function genOrder(){
+  const lv=G.mode==='infinite' ? LEVELS[Math.random()<.5?1:2] : LEVELS[G.level];
+  const effLevel=G.mode==='infinite' ? (Math.random()<.5?1:2) : G.level;
+
+  const rv=[];for(let v=3;v<=15;v+=lv.rStep)rv.push(+v.toFixed(1));
+  const useArcPool=effLevel>=1;
+  const av=useArcPool ? ARC_POOL : [];
+  if(!useArcPool){for(let v=20;v<=340;v+=lv.aStep)av.push(v);}
+
+  G.tA=av[Math.floor(Math.random()*av.length)];
+  G.tR=rv[Math.floor(Math.random()*rv.length)];
+  G.tArc=+((G.tA/360)*2*Math.PI*G.tR).toFixed(2);
+
+  // Mode flags
+  G.radioMode = (G.mode==='infinite') ? Math.random()<.5 : effLevel>=2;
+  G.arcMode   = !G.radioMode && effLevel>=1;
+
+  // If radioMode: lock angle slider to tA, player finds radius
+  const aCtg=document.getElementById('aCtg');
+  const aSlEl=document.getElementById('aSl');
+  if(G.radioMode){
+    G.pA=G.tA;
+    aSl.value=G.tA; updSBg(aSl);
+    document.getElementById('aDisp').textContent=G.tA+'°';
+    document.getElementById('aNum').value=G.tA;
+    aCtg.classList.add('given'); aSlEl.disabled=true;
+    document.getElementById('aNum').disabled=true;
+    document.getElementById('aCtgLbl').textContent='Ángulo (dado)';
+  } else {
+    aCtg.classList.remove('given'); aSlEl.disabled=false;
+    document.getElementById('aNum').disabled=false;
+    document.getElementById('aCtgLbl').textContent='Ángulo';
+  }
+
+  const c=CUSTOMERS[Math.floor(Math.random()*CUSTOMERS.length)];
+  G.cust=c;
+  document.getElementById('custAv').textContent=c.av;
+  document.getElementById('custNm').textContent=c.name;
+
+  // Speech bubble & spec boxes
+  const ph=c.ph[Math.floor(Math.random()*c.ph.length)];
+  if(G.radioMode){
+    document.getElementById('sbbl').innerHTML=
+      `${ph} una pizza con ángulo de <span class="oh">${G.tA}°</span> y longitud de arco de <span class="oh">${G.tArc}</span> cm. ¡Encuentra el radio!`;
+    document.getElementById('specALbl').textContent='Arco';
+    document.getElementById('specAUnit').textContent='cm';
+    document.getElementById('specA').textContent=G.tArc;
+    document.getElementById('specR').textContent='?';
+  } else if(G.arcMode){
+    document.getElementById('sbbl').innerHTML=
+      `${ph} una pizza de radio <span class="oh">${G.tR}</span> cm con longitud de arco de <span class="oh">${G.tArc}</span> cm.`;
+    document.getElementById('specALbl').textContent='Arco';
+    document.getElementById('specAUnit').textContent='cm';
+    document.getElementById('specA').textContent=G.tArc;
+    document.getElementById('specR').textContent=G.tR;
+  } else {
+    document.getElementById('sbbl').innerHTML=
+      `¡Hola! Quiero una pizza de radio <span class="oh">${G.tR}</span> cm con un ángulo de <span class="oh">${G.tA}</span>°.`;
+    document.getElementById('specALbl').textContent='Ángulo';
+    document.getElementById('specAUnit').textContent='grados';
+    document.getElementById('specA').textContent=G.tA;
+    document.getElementById('specR').textContent=G.tR;
+  }
+
+  // Update radio control label
+  const rCtgEl=document.getElementById('rCtg');
+  if(G.radioMode){
+    rCtgEl.classList.add('given');
+    rCtgEl.querySelector('.clbl').innerHTML='📏 <span>Radio (encontrar)</span> <span class="ccur" id="rDisp">'+G.pR+' cm</span>';
+  } else {
+    rCtgEl.classList.remove('given');
+    rCtgEl.querySelector('.clbl').innerHTML='📏 Radio <span class="ccur" id="rDisp">'+G.pR+' cm</span>';
+  }
+  av2.style.animation='none';void av2.offsetWidth;av2.style.animation='bIn .5s cubic-bezier(.34,1.56,.64,1)';
+  playSound('customer');
+  updTarget();updEdu();updHint();
+}
+
+function deliverPizza(){
+  if(G.tutMode&&tutStep!==7)return;
+  const eR=Math.abs(G.pR-G.tR)/G.tR*100;
+  const eA=G.radioMode ? 0 : Math.abs(G.pA-G.tA)/G.tA*100;
+  const eAv=G.radioMode ? eR : (eR+eA)/2;
+  let s=1;
+  if(eAv<=2)s=5;else if(eAv<=6)s=4;else if(eAv<=12)s=3;else if(eAv<=20)s=2;
+
+  const isCorrect=s>=4;
+  const retryMode = !isCorrect && !G.tutMode && G.mode!=='infinite';
+
+  // Only count score & history on correct OR on infinite failure (life lost)
+  if(!retryMode){
+    const lv=LEVELS[G.mode==='infinite'?1:G.level];
+    const pts=s*100*lv.multi;
+    G.score+=pts; G.stars+=s; G.orders++;
+    if(isCorrect) G.correctConsec++;
+    document.getElementById('scoreVal').textContent=G.score;
+    document.getElementById('ordersVal').textContent=G.orders;
+    document.getElementById('starsVal').textContent=G.stars;
+    if(isCorrect){
+      G.allCorrect.push({
+        lvl: G.mode==='infinite'?'∞':(G.level+1),
+        mode: G.radioMode?'radio':G.arcMode?'arco':'base',
+        tR:G.tR, tA:G.tA, tArc:G.tArc, pR:G.pR, pA:G.pA, stars:s
+      });
+    }
+    G.history.unshift({r:G.tR,a:G.tA,arc:G.tArc,s,radioMode:G.radioMode});
+    renderHist();
+  }
+
+  const retryHint=document.getElementById('retryHint');
+  const eBd=document.getElementById('eBd');
+
+  if(retryMode){
+    // ── FAILURE: show hint with substituted formula, no answer ──
+    const cf={3:{e:'😕',t:'¡Casi!'},2:{e:'😕',t:'No del todo...'},1:{e:'😤',t:'¡Intenta de nuevo!'}}[s]||{e:'😕',t:'Inténtalo de nuevo'};
+    document.getElementById('rEmoji').textContent=cf.e;
+    document.getElementById('rTitle').textContent=cf.t;
+    document.getElementById('rComm').textContent=`${G.cust.name}: "Eso no era exactamente lo que pedí, ¡inténtalo de nuevo!"`;
+    const sr=document.getElementById('sRow');sr.innerHTML='';
+    for(let i=1;i<=5;i++){const sp=document.createElement('span');sp.textContent=i<=s?'⭐':'☆';sp.style.animationDelay=(i*.12)+'s';sp.style.color=i<=s?'#F0C040':'#ccc';sr.appendChild(sp);}
+    document.getElementById('rPts').textContent='';
+
+    // Build substituted-formula hint (NO answer)
+    let formulaHtml='';
+    if(G.radioMode){
+      formulaHtml=`<span class="retry-formula">r = (L × 360) / (2π × θ)</span>
+        <span class="retry-formula" style="font-size:.85rem;color:var(--brown-m);">= (${G.tArc} × 360) / (2π × ${G.tA}) = ?</span>`;
+    } else if(G.arcMode){
+      formulaHtml=`<span class="retry-formula">θ = (L × 360) / (2π × r)</span>
+        <span class="retry-formula" style="font-size:.85rem;color:var(--brown-m);">= (${G.tArc} × 360) / (2π × ${G.tR}) = ?</span>`;
+    } else {
+      formulaHtml=`<span class="retry-formula">r = ${G.tR} cm &nbsp;·&nbsp; θ = ${G.tA}°</span>`;
+    }
+    retryHint.innerHTML='💡 Pista: usa esta fórmula con los datos del pedido:'+formulaHtml;
+    retryHint.style.display='';
+    eBd.style.display='none';
+    document.getElementById('tutFinalMsg').style.display='none';
+    const rnb=document.getElementById('rNxtBtn');
+    rnb.textContent='🔄 ¡Intentar de nuevo!';
+    rnb.onclick=retryOrder;
+    playSound('star12');
+  } else {
+    // ── SUCCESS (or infinite fail) ──
+    retryHint.style.display='none';
+    eBd.style.display='';
+    const cf={5:{e:'🤩',t:'¡PERFECTO!',c:'¡Dominas los sectores circulares! Increíble precisión.'},
+              4:{e:'😄',t:'¡MUY BIEN!',c:'¡Casi perfecto! Un poquito más de práctica.'},
+              3:{e:'😊',t:'ACEPTABLE',c:'No está mal, pero el cliente esperaba más.'},
+              2:{e:'😕',t:'HMMM...',c:'Esto no era exactamente lo que pedí...'},
+              1:{e:'😤',t:'¡ERROR!',c:'¡Eso no es lo que pedí para nada! 😤'}}[s];
+    document.getElementById('rEmoji').textContent=cf.e;
+    document.getElementById('rTitle').textContent=cf.t;
+    document.getElementById('rComm').textContent=`${G.cust.name}: "${cf.c}"`;
+    const lv=LEVELS[G.mode==='infinite'?1:G.level];
+    document.getElementById('rPts').textContent=`+ ${s*100*lv.multi} puntos`;
+    const sr=document.getElementById('sRow');sr.innerHTML='';
+    for(let i=1;i<=5;i++){const sp=document.createElement('span');sp.textContent=i<=s?'⭐':'☆';sp.style.animationDelay=(i*.12)+'s';sp.style.color=i<=s?'#F0C040':'#ccc';sr.appendChild(sp);}
+
+    let pedidoLine='';
+    if(G.radioMode) pedidoLine=`<div class="er"><span>Respuesta: r = ${G.tR} cm</span></div>`;
+    else if(G.arcMode) pedidoLine=`<div class="er"><span>Respuesta: θ = ${G.tA}°</span></div>`;
+    else pedidoLine=`<div class="er"><span>Pedido: r=${G.tR}cm, θ=${G.tA}°</span></div>`;
+
+    const errLabel=G.radioMode?'Error Radio':'Error Promedio';
+    eBd.innerHTML=
+      `<div class="er"><span>Error Radio:</span><span class="${eR<=5?'eg':'eb'}">${eR.toFixed(1)}%</span></div>`+
+      (G.radioMode?'':` <div class="er"><span>Error Ángulo:</span><span class="${eA<=5?'eg':'eb'}">${eA.toFixed(1)}%</span></div>`)+
+      `<div class="er" style="border-top:1px solid #ddd;margin-top:4px;padding-top:4px;"><span>${errLabel}:</span><span class="${eAv<=6?'eg':'eb'}">${eAv.toFixed(1)}%</span></div>`+
+      `<div class="er" style="margin-top:3px;"><span>Tu pizza: r=${G.pR}cm, θ=${G.pA}°</span></div>${pedidoLine}`;
+
+    const tfm=document.getElementById('tutFinalMsg');
+    const rnb=document.getElementById('rNxtBtn');
+    if(G.tutMode){
+      tfm.style.display='block';tfm.textContent='🎓 ¡Tutorial completo! Ya dominas las bases de PizzaSector. ¡A jugar de verdad!';
+      rnb.textContent='🏠 Volver al Menú';rnb.onclick=()=>{document.getElementById('ratingOv').classList.remove('show');tutClose();goMenu();};
+      tutClose();
+    } else if(G.mode==='infinite' && !isCorrect){
+      tfm.style.display='none';
+      eBd.style.display='none';
+      // Show formula hint (no answer)
+      let fHtml='';
+      if(G.radioMode) fHtml=`<span class="retry-formula">r = (L × 360) / (2π × θ) = (${G.tArc} × 360) / (2π × ${G.tA}) = ?</span>`;
+      else if(G.arcMode) fHtml=`<span class="retry-formula">θ = (L × 360) / (2π × r) = (${G.tArc} × 360) / (2π × ${G.tR}) = ?</span>`;
+      else fHtml=`<span class="retry-formula">r = ${G.tR} cm &nbsp;·&nbsp; θ = ${G.tA}°</span>`;
+      document.getElementById('retryHint').innerHTML='💡 Pista:'+fHtml;
+      document.getElementById('retryHint').style.display='';
+      rnb.textContent='🔄 Intentar de nuevo (-1 ❤️)';
+      rnb.onclick=()=>{document.getElementById('ratingOv').classList.remove('show');loseLife();};
+    } else {
+      eBd.style.display='';
+      tfm.style.display='none'; rnb.textContent='¡Siguiente pedido! →'; rnb.onclick=nextOrder;
+    }
+    playSound('deliver');
+    setTimeout(()=>{if(s===5)playSound('star5');else if(s===4)playSound('star4');else if(s===3)playSound('star3');else playSound('star12');},320);
+    if(s===5)launchConfetti();
+    if(G.mode!=='infinite') updProg();
+  }
+
+  document.getElementById('ratingOv').classList.add('show');
+}
+
+function retryOrder(){
+  playSound('click');
+  document.getElementById('ratingOv').classList.remove('show');
+  // Keep the exact same order — just close overlay so player tries again
+}
+
+function nextOrder(){
+  playSound('click');
+  document.getElementById('ratingOv').classList.remove('show');
+  if(G.mode==='infinite'){
+    // Check milestone: 10 correct orders
+    const infCorrect=G.allCorrect.filter(e=>e.lvl==='∞').length;
+    if(infCorrect===10){ showInfMilestone(); return; }
+    genOrder(); return;
+  }
+  // Level up: 3 cumulative correct orders (≥4 stars)
+  if(G.correctConsec>=3 && G.level<LEVELS.length-1){
+    G.level++; G.correctConsec=0; updLvlUI(); showLvlUp(); return;
+  }
+  // Level 3 completion: 3 correct at max level
+  if(G.correctConsec>=3 && G.level===LEVELS.length-1){
+    G.correctConsec=0;
+    showCompletion(); return;
+  }
+  genOrder();
+}
+
+function showInfMilestone(){
+  const name=G.playerName||'Pizzero';
+  document.getElementById('msTitle').textContent=`🏆 ¡Felicidades, ${name}!`;
+  document.getElementById('msSub').textContent=
+    `¡Completaste los 10 pedidos del Modo Infinito! Eres el mejor pizzero del país. 🇩🇴🍕`;
+  document.getElementById('msOv').classList.add('show');
+  launchConfetti(120);
+  playSound('levelup');
+  setTimeout(()=>playSound('levelup'),450);
+}
+function closeMilestone(){
+  document.getElementById('msOv').classList.remove('show');
+  genOrder();
+}
+
+function loseLife(){
+  G.lives--;
+  updLivesDisplay();
+  if(G.lives<=0){ showGameOver(); return; }
+  // Same order — player retries automatically (overlay already closed by button handler)
+}
+
+function updLivesDisplay(){
+  const wrap=document.getElementById('livesWrap');
+  wrap.innerHTML='';
+  for(let i=0;i<3;i++){
+    const sp=document.createElement('span');
+    sp.className='life-icon'+(i>=G.lives?' lost':'');
+    sp.textContent='❤️';
+    wrap.appendChild(sp);
+  }
+}
+
+function updProg(){
+  const d=Math.min(G.correctConsec,3);
+  document.getElementById('progBar').style.width=(d/3*100)+'%';
+  if(G.level<LEVELS.length-1)
+    document.getElementById('progLbl').textContent=`${d} / 3 pedidos correctos (≥4⭐) para subir`;
+  else
+    document.getElementById('progLbl').textContent=`${d} / 3 pedidos correctos para completar`;
+}
+function updLvlUI(){
+  const name=G.playerName?` · ${G.playerName}`:'';
+  document.getElementById('lvlBanner').textContent=LEVELS[G.level].name+name;
+  updProg();
+}
+function showLvlUp(){
+  document.getElementById('luTitle').textContent='¡SUBISTE DE NIVEL!';
+  document.getElementById('luSub').textContent=`Ahora eres: ${LEVELS[G.level].label} | Margen ±${LEVELS[G.level].margin}%`;
+  document.getElementById('luOv').classList.add('show');
+  playSound('levelup'); launchConfetti(80);
+}
+function closeLevelUp(){playSound('click');document.getElementById('luOv').classList.remove('show');genOrder();}
+
+function showCompletion(){
+  // Unlock infinite mode
+  try{localStorage.setItem('psInfUnlocked','1');}catch(e){}
+  document.getElementById('infCard').classList.remove('locked-card');
+  document.getElementById('menuBestInf').textContent='¡Desbloqueado! 🔓';
+  // Personalized title
+  const name=G.playerName||'Pizzero';
+  document.getElementById('compTitle').textContent='🏆 ¡Nivel 3 Completado!';
+  document.getElementById('compSub').textContent=
+    `¡Felicidades ${name}, ahora eres un chef profesional! 👨‍🍳 Aquí está tu historial de respuestas correctas:`;
+  const hist=document.getElementById('compHist');
+  if(!G.allCorrect.length){hist.innerHTML='<div style="text-align:center;font-size:.8rem;color:var(--brown-m)">No hay pedidos correctos registrados.</div>';}
+  else {
+    hist.innerHTML=G.allCorrect.map((e,i)=>{
+      const modeTag=e.mode==='radio'?'Modo Radio':'Modo Arco';
+      const detail=e.mode==='radio'?`θ=${e.tA}°, arco=${e.tArc}cm → r=${e.tR}cm`
+                   :e.mode==='arco'?`r=${e.tR}cm, arco=${e.tArc}cm → θ=${e.tA}°`
+                   :`r=${e.tR}cm, θ=${e.tA}°`;
+      return `<div class="comp-row">
+        <div><div class="comp-row-lbl">Pedido ${i+1} · Niv.${e.lvl} · ${modeTag}</div>${detail}</div>
+        <span class="comp-stars">${'⭐'.repeat(e.stars)}</span>
+      </div>`;
+    }).join('');
+  }
+  launchConfetti(100);
+  playSound('levelup');
+  setTimeout(()=>playSound('levelup'),400);
+  document.getElementById('compOv').classList.add('show');
+}
+
+function showGameOver(){
+  const best=parseInt(localStorage.getItem('psInfBest')||'0');
+  const correctCount=G.allCorrect.filter(e=>e.lvl==='∞').length;
+  document.getElementById('govScore').textContent=G.score;
+  document.getElementById('govCorrect').textContent=correctCount;
+  document.getElementById('govTotal').textContent=G.orders;
+  const isBest=G.score>best;
+  if(isBest){try{localStorage.setItem('psInfBest',G.score);}catch(e){}}
+  document.getElementById('govBest').textContent=isBest?'🏆 ¡Nuevo récord!':`Récord: ${Math.max(best,G.score)} pts`;
+  try{
+    const b=parseInt(localStorage.getItem('psInfBest')||'0');
+    document.getElementById('menuBestInf').textContent=`Récord: ${b} pts`;
+  }catch(e){}
+  document.getElementById('govOv').classList.add('show');
+  playSound('star12');
+}
+
+function renderHist(){
+  const l=document.getElementById('histList');
+  if(!G.history.length){l.innerHTML='<div style="font-size:.71rem;color:var(--brown-m);text-align:center;padding:8px;">Aún no hay pedidos...</div>';return;}
+  l.innerHTML=G.history.slice(0,8).map(h=>{
+    const lbl=h.radioMode?`θ=${h.a}°, arco=${h.arc}cm`:`r=${h.r}cm, θ=${h.a}°`;
+    return `<div class="hitem"><span>${lbl}</span><span class="hstars">${'⭐'.repeat(h.s)}${'☆'.repeat(5-h.s)}</span></div>`;
+  }).join('');
+}
+function launchConfetti(n=50){
+  const cols=['#C0392B','#F0C040','#6B7C3A','#3E1F00','#fff','#E74C3C'];
+  for(let i=0;i<n;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;transform:rotate(${Math.random()*360}deg);`;
+    document.body.appendChild(el);
+    el.animate([{opacity:1,transform:'translateY(0) rotate(0deg)'},{opacity:.8,transform:`translateY(${window.innerHeight*.7}px) rotate(${360+Math.random()*360}deg)`}],{duration:1500+Math.random()*1500,fill:'forwards'}).onfinish=()=>el.remove();
+  }
+}
+
+// ─── TUTORIAL ───
+const TUT=[
+  {id:null,full:true,title:'¡Bienvenido a PizzaSector! 🍕',text:'Eres el nuevo pizzero de la pizzería matemática. Los clientes llegarán con pedidos específicos: quieren una pizza con un <strong>radio (r)</strong> y un <strong>ángulo central (θ)</strong> exactos. Tu trabajo es hacer la pizza con la mayor precisión posible.',action:'next'},
+  {id:'custCard',title:'👤 El Cliente',text:'Aquí aparece el cliente con su pedido. Cada cliente tiene personalidad propia y te dirá exactamente qué pizza necesita: el <strong>radio en centímetros</strong> y el <strong>ángulo central en grados</strong>.',action:'next'},
+  {id:'ospecs',title:'📋 Los Valores del Pedido',text:'Estos dos cuadros muestran los valores exactos que debes alcanzar. Para este tutorial el pedido es: <strong>Radio = 8 cm</strong> y <strong>Ángulo = 90°</strong>. ¡Memorízalos antes de continuar!',action:'next'},
+  {id:'pizzaCanvas',title:'🍕 La Pizza en Tiempo Real',text:'Este es tu espacio de trabajo. La <strong>porción naranja</strong> es el sector circular que estás preparando. Las líneas punteadas son los dos radios y el arco completa el sector. Todo cambia en tiempo real al mover los controles.',action:'next'},
+  {id:'rCtg',side:'right',title:'📏 Ajusta el Radio',text:'Mueve el slider del radio hacia la derecha hasta que el indicador rojo marque exactamente <strong>8 cm</strong>. Observa cómo la pizza crece o decrece en el canvas.',action:'slider_r',target:8,hint:'🎯 Mueve el slider de Radio hasta marcar 8 cm'},
+  {id:'aCtg',side:'right',title:'📐 Ajusta el Ángulo Central',text:'Ahora mueve el slider del ángulo hasta llegar a <strong>90°</strong>. Eso representa exactamente un cuarto (¼) de la pizza completa. El ángulo completo del círculo es 360°.',action:'slider_a',target:90,hint:'🎯 Mueve el slider de Ángulo cerca de 90° (entre 85° y 95°)'},
+  {id:'fmlCard',title:'📐 Panel de Fórmulas en Vivo',text:'Este panel calcula automáticamente las propiedades del sector con tus valores actuales. Los valores en <strong style="color:var(--olive)">verde</strong> coinciden con el pedido. El Área del sector = <strong>(θ/360) × π × r²</strong>.',action:'next'},
+  {id:'dBtn',side:'left',title:'🚀 ¡Entrega la Pizza!',text:'¡Todo listo! Presiona el botón para entregarle la pizza al cliente. Recibirás entre 1 y 5 ⭐ según qué tan preciso hayas sido. ¡Cuanto menor sea el error, más estrellas!',action:'deliver',hint:'🍕 Presiona el botón "¡Entregar Pizza!"'},
+];
+let tutStep=0,tutOk=false;
+
+function startTutorial(){
+  G={score:0,stars:0,orders:0,level:0,correctConsec:0,history:[],allCorrect:[],
+     pR:7,pA:90,cust:CUSTOMERS[0],tutMode:true,tR:8,tA:90,tArc:0,arcMode:false,radioMode:false,mode:'normal',lives:3};
+  resetGameUI(); updLvlUI(); renderHist();
+  showSc('game');
+  // Set fixed tutorial order: r=8, θ=90
+  document.getElementById('custAv').textContent='👩';
+  document.getElementById('custNm').textContent='María';
+  document.getElementById('sbbl').innerHTML=
+    '¡Hola! Quiero una pizza de radio <span class="oh">8</span> cm con un ángulo de <span class="oh">90</span>°.';
+  document.getElementById('specALbl').textContent='Ángulo';
+  document.getElementById('specAUnit').textContent='grados';
+  document.getElementById('specR').textContent='8';
+  document.getElementById('specA').textContent='90';
+  updTarget();updEdu();updHint();drawPizza();updProg();
+  tutStep=0;tutOk=false;
+  document.getElementById('tutOv').classList.add('on');
+  BgMusic.start();
+  const mb3=document.getElementById('musicBtn');if(mb3) mb3.classList.toggle('muted',!BgMusic.isOn);
+  tutRender();
+}
+function tutRender(){
+  const st=TUT[tutStep],tot=TUT.length;
+  let dots='';
+  for(let i=0;i<tot;i++) dots+=`<div class="tdot${i<tutStep?' done':i===tutStep?' cur':''}"></div>`;
+  document.getElementById('tutProg').innerHTML=dots;
+  document.getElementById('tutBdg').textContent=`Paso ${tutStep+1} de ${tot}`;
+  document.getElementById('tutTit').textContent=st.title;
+  document.getElementById('tutTxt').innerHTML=st.text;
+  const ah=document.getElementById('tutAHint');
+  st.hint?(ah.textContent=st.hint,ah.classList.add('on')):ah.classList.remove('on');
+  const btn=document.getElementById('tutBtn');
+  tutOk=st.action==='next';
+  if(st.action==='deliver'){btn.textContent='Esperando entrega...';btn.disabled=true;}
+  else if(st.action.startsWith('slider')){btn.textContent='Esperando...';btn.disabled=true;}
+  else{btn.textContent=tutStep===tot-1?'¡Terminar!':'Siguiente →';btn.disabled=false;}
+  tutPos(st.id,st.full,st.side);
+}
+function tutPos(id,full,preferSide){
+  const sp=document.getElementById('tutSp');
+  const tc=document.getElementById('tutCard');
+  const ar=document.getElementById('tutArrow');
+  if(!id||full){
+    sp.style.display='none';ar.style.display='none';
+    tc.style.top='50%';tc.style.left='50%';tc.style.transform='translate(-50%,-50%)';
+    return;
+  }
+  sp.style.display='block';
+  const el=document.getElementById(id);
+  if(!el){sp.style.display='none';return;}
+  const r=el.getBoundingClientRect(),pad=10;
+  sp.style.top=(r.top-pad)+'px';sp.style.left=(r.left-pad)+'px';
+  sp.style.width=(r.width+pad*2)+'px';sp.style.height=(r.height+pad*2)+'px';
+  const cw=280,ch=280,vw=window.innerWidth,vh=window.innerHeight;
+
+  let cx2,cy;
+  if(preferSide==='right'){
+    // Place card to the right of the spotlight, vertically centred on it
+    cx2=Math.min(r.right+pad+14, vw-cw-10);
+    cy=Math.max(10, Math.min(r.top+r.height/2-ch/2, vh-ch-10));
+    tc.style.transform='none';tc.style.top=cy+'px';tc.style.left=cx2+'px';
+    ar.style.display='none'; // no arrow when side-placed
+  } else if(preferSide==='left'){
+    cx2=Math.max(8, r.left-cw-pad-14);
+    cy=Math.max(10, Math.min(r.top+r.height/2-ch/2, vh-ch-10));
+    tc.style.transform='none';tc.style.top=cy+'px';tc.style.left=cx2+'px';
+    ar.style.display='none';
+  } else {
+    // Default: below or above
+    const below=r.bottom+pad+ch+20<vh;
+    cy=below?r.bottom+pad+10:r.top-pad-ch-10;
+    cx2=Math.max(8,Math.min(r.left,vw-cw-8));
+    tc.style.transform='none';tc.style.top=cy+'px';tc.style.left=cx2+'px';
+    ar.style.display='block';
+    ar.textContent=below?'⬇️':'⬆️';
+    ar.style.top=(below?r.top-pad-42:r.bottom+pad+6)+'px';
+    ar.style.left=(r.left+r.width/2-12)+'px';
+  }
+}
+function tutCheck(){
+  const st=TUT[tutStep];
+  const btn=document.getElementById('tutBtn');
+  if(st.action==='slider_r'){
+    const ok=Math.abs(+G.pR-st.target)<=0.5;
+    if(ok){tutOk=true;btn.textContent='¡Correcto! Siguiente →';btn.disabled=false;}
+    else{tutOk=false;btn.textContent='Esperando...';btn.disabled=true;}
+  }
+  if(st.action==='slider_a'){
+    const ok=Math.abs(+G.pA-st.target)<=5;
+    if(ok){tutOk=true;btn.textContent='¡Correcto! Siguiente →';btn.disabled=false;}
+    else{tutOk=false;btn.textContent='Esperando...';btn.disabled=true;}
+  }
+}
+function tutNext(){
+  if(!tutOk)return;
+  playSound('click');
+  tutStep++;
+  if(tutStep>=TUT.length){tutClose();return;}
+  tutOk=false;tutRender();
+}
+function tutClose(){document.getElementById('tutOv').classList.remove('on');G.tutMode=false;}
+
+// ─── QUIZ ───
+let QS={qs:[],cur:0,corr:0,ans:[],streak:0,timer:null,tl:30};
+const TCIRC=131.9;
+
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function rc(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function shuf(arr){return[...arr].sort(()=>Math.random()-.5);}
+function mkWrongs(val,fmt,offs=[.15,.28,.42]){
+  const set=new Set([String(val)]);const w=[];
+  for(const o of offs){
+    for(const s of[-1,1]){
+      const c=+(val*(1+s*o)).toFixed(2);
+      if(!set.has(String(c))&&c>0){set.add(String(c));w.push(fmt(c));if(w.length>=3)return w;break;}
+    }
+  }
+  while(w.length<3){const v=+(val*(1+ri(5,40)/100*(Math.random()<.5?-1:1))).toFixed(2);const k=fmt(v);if(!set.has(String(v))&&v>0){set.add(String(v));w.push(k);}}
+  return w.slice(0,3);
+}
+
+const QTYPES=[
+  ()=>{
+    const r=ri(3,12),a=rc([30,45,60,90,120,150,180,240,270]);
+    const ans=+((a/360*Math.PI*r*r).toFixed(2));
+    return{type:'qt-area',badge:'Calcular el Área',question:'¿Cuál es el área del sector circular?',given:[['r',r+' cm'],['θ',a+'°']],correct:`${ans} cm²`,options:shuf([`${ans} cm²`,...mkWrongs(ans,v=>`${v} cm²`)]),expl:`A = (θ/360) × π × r² = (${a}/360) × π × ${r}² = ${ans} cm²`};
+  },
+  ()=>{
+    const r=ri(3,12),a=rc([30,45,60,90,120,180,270,360]);
+    const ans=+((a/360*2*Math.PI*r).toFixed(2));
+    return{type:'qt-arc',badge:'Longitud del Arco',question:'¿Cuál es la longitud del arco del sector?',given:[['r',r+' cm'],['θ',a+'°']],correct:`${ans} cm`,options:shuf([`${ans} cm`,...mkWrongs(ans,v=>`${v} cm`)]),expl:`L = (θ/360) × 2πr = (${a}/360) × 2π × ${r} = ${ans} cm`};
+  },
+  ()=>{
+    const r=ri(4,10),a=rc([60,90,120,180,240]);
+    const area=+((a/360*Math.PI*r*r).toFixed(2));
+    const ws=mkWrongs(a,v=>`${Math.max(1,Math.round(v))}°`,[.15,.3,.5]);
+    return{type:'qt-angle',badge:'Encontrar el Ángulo',question:'¿Cuál es el ángulo central del sector?',given:[['r',r+' cm'],['Área',area+' cm²']],correct:`${a}°`,options:shuf([`${a}°`,...ws]),expl:`θ = (Área × 360) / (π × r²) = (${area} × 360) / (π × ${r}²) = ${a}°`};
+  },
+  ()=>{
+    const r=ri(4,10),a=rc([60,90,120,180,240]);
+    const arc=+((a/360*2*Math.PI*r).toFixed(2));
+    const ws=mkWrongs(r,v=>`${Math.max(1,Math.round(v*2)/2)} cm`,[.2,.4,.6]);
+    return{type:'qt-arc',badge:'Encontrar el Radio',question:'¿Cuál es el radio del sector?',given:[['θ',a+'°'],['Arco',arc+' cm']],correct:`${r} cm`,options:shuf([`${r} cm`,...ws]),expl:`r = Arco × 360 / (2π × θ) = ${arc} × 360 / (2π × ${a}) = ${r} cm`};
+  },
+  ()=>{
+    const degs=rc([30,45,60,90,120,135,150,180,270,360]);
+    const rad=+(degs*Math.PI/180).toFixed(3);
+    return{type:'qt-rad',badge:'Grados → Radianes',question:'¿A cuántos radianes equivale este ángulo?',given:[['θ',degs+'°']],correct:`${rad} rad`,options:shuf([`${rad} rad`,...mkWrongs(rad,v=>`${v} rad`)]),expl:`${degs}° × (π/180) = ${rad} rad`};
+  },
+  ()=>{
+    const FORMS=[
+      {q:'¿Cuál es la fórmula correcta del área de un sector circular?',c:'(θ/360) × π × r²',w:['π × r²','(θ/180) × r²','θ × r / 2']},
+      {q:'¿Cuál es la fórmula correcta de la longitud del arco?',c:'(θ/360) × 2πr',w:['2πr','π × r × θ','(θ/180) × r']},
+      {q:'¿Cuántos radianes equivalen a 180°?',c:'π rad',w:['2π rad','π/2 rad','π/4 rad']},
+      {q:'¿Cuántos grados equivalen a π/2 radianes?',c:'90°',w:['180°','45°','270°']},
+      {q:'¿Cuál es el área de un círculo completo con r = 6 cm?',c:'113.10 cm²',w:['36 cm²','37.70 cm²','226.19 cm²']},
+      {q:'Si θ = 360°, ¿qué representa el sector?',c:'El círculo completo',w:['La mitad del círculo','Un semicírculo','Un cuarto del círculo']},
+    ];
+    const f=rc(FORMS);
+    return{type:'qt-form',badge:'Identificar Fórmulas',question:f.q,given:[],correct:f.c,options:shuf([f.c,...f.w]),expl:'La respuesta correcta es: '+f.c};
+  },
+  ()=>{
+    const r1=ri(3,9),a1=rc([60,90,120,180]),r2=ri(3,9),a2=rc([60,90,120,180]);
+    const A1=+(a1/360*Math.PI*r1*r1).toFixed(2);
+    const A2=+(a2/360*Math.PI*r2*r2).toFixed(2);
+    const big=A1>=A2?`Sector A (r=${r1}cm, θ=${a1}°)`:`Sector B (r=${r2}cm, θ=${a2}°)`;
+    const sml=A1>=A2?`Sector B (r=${r2}cm, θ=${a2}°)`:`Sector A (r=${r1}cm, θ=${a1}°)`;
+    return{type:'qt-comp',badge:'Comparar Sectores',question:'¿Cuál sector tiene MAYOR área?',given:[['Sector A',`r=${r1}cm, θ=${a1}°`],['Sector B',`r=${r2}cm, θ=${a2}°`]],correct:big,options:shuf([big,sml,'Tienen igual área','No se puede saber']),expl:`A_A = ${A1} cm² | A_B = ${A2} cm²`};
+  },
+];
+
+function genQs(n=10){
+  const order=[0,1,2,3,4,5,6,0,1,2];
+  return order.slice(0,n).map(i=>QTYPES[i%QTYPES.length]());
+}
+
+function startQuiz(){
+  QS={qs:genQs(10),cur:0,corr:0,ans:[],streak:0,timer:null,tl:30};
+  document.getElementById('qResWrap').style.display='none';
+  document.getElementById('qCard').style.display='block';
+  document.getElementById('qNxt').classList.remove('on');
+  showSc('quiz');
+  renderQQ();
+}
+function renderQQ(){
+  const q=QS.qs[QS.cur],n=QS.qs.length;
+  document.getElementById('qProgBar').style.width=((QS.cur/n)*100)+'%';
+  document.getElementById('qCnt').textContent=`${QS.cur+1} / ${n}`;
+  document.getElementById('qStreak').textContent=QS.streak;
+  document.getElementById('qCorr').textContent=QS.corr;
+  document.getElementById('qTot').textContent=QS.cur;
+  const bdg=document.getElementById('qBdg');
+  bdg.className='qtbdg '+q.type;bdg.textContent=q.badge;
+  document.getElementById('qQ').textContent=q.question;
+  const gv=document.getElementById('qGiven');
+  gv.innerHTML=q.given.length?'Datos: '+q.given.map(([k,v])=>`${k} = <span>${v}</span>`).join(' &nbsp;|&nbsp; '):'';
+  const opts=document.getElementById('qOpts');
+  const letters=['A','B','C','D'];
+  opts.innerHTML=q.options.map((o,i)=>`<div class="qopt" onclick="qAnswer(this,'${o.replace(/'/g,"&#39;")}')"><span class="ol">${letters[i]}</span>${o}</div>`).join('');
+  document.getElementById('qExpl').classList.remove('on');
+  document.getElementById('qNxt').classList.remove('on');
+  const qc=document.getElementById('qCard');
+  qc.style.animation='none';void qc.offsetWidth;qc.style.animation='qIn .4s cubic-bezier(.34,1.56,.64,1)';
+  startQTimer();
+}
+function startQTimer(){
+  clearInterval(QS.timer);QS.tl=30;updTimer(30);
+  QS.timer=setInterval(()=>{QS.tl--;updTimer(QS.tl);if(QS.tl<=0){clearInterval(QS.timer);qTimeUp();}},1000);
+}
+function updTimer(t){
+  const c=document.getElementById('tCirc');
+  c.style.strokeDashoffset=TCIRC*(1-t/30);
+  c.className='tfg'+(t<=10?' urg':'');
+  document.getElementById('tNum').textContent=t;
+}
+function qTimeUp(){
+  const q=QS.qs[QS.cur];
+  QS.ans.push({q:q.question,correct:false,ans:q.correct});QS.streak=0;
+  lockOpts(null,q.correct);
+  playSound('qtimeup');
+  const ex=document.getElementById('qExpl');
+  ex.textContent='⏰ ¡Se acabó el tiempo! '+q.expl;ex.classList.add('on');
+  const nb=document.getElementById('qNxt');
+  nb.textContent=QS.cur===QS.qs.length-1?'Ver Resultados 🏆':'Siguiente →';
+  nb.classList.add('on');
+  document.getElementById('qStreak').textContent=QS.streak;
+}
+function qAnswer(el,answer){
+  clearInterval(QS.timer);
+  const q=QS.qs[QS.cur];
+  const ok=answer===q.correct;
+  if(ok){QS.corr++;QS.streak++;playSound('qcorrect');}else{QS.streak=0;playSound('qwrong');}
+  QS.ans.push({q:q.question,correct:ok,ans:q.correct,chosen:answer});
+  lockOpts(answer,q.correct);
+  const ex=document.getElementById('qExpl');
+  ex.textContent=(ok?'✅ ¡Correcto! ':'❌ Incorrecto. ')+q.expl;ex.classList.add('on');
+  const nb=document.getElementById('qNxt');
+  nb.textContent=QS.cur===QS.qs.length-1?'Ver Resultados 🏆':'Siguiente →';
+  nb.classList.add('on');
+  document.getElementById('qStreak').textContent=QS.streak;
+  document.getElementById('qCorr').textContent=QS.corr;
+  document.getElementById('qTot').textContent=QS.cur+1;
+}
+function lockOpts(chosen,correct){
+  document.querySelectorAll('.qopt').forEach(el=>{
+    el.classList.add('lk');
+    const txt=el.textContent.trim().replace(/^[A-D]\s*/,'');
+    if(txt===correct)el.classList.add('cor');
+    else if(chosen&&txt===chosen&&chosen!==correct)el.classList.add('wrg');
+  });
+}
+function quizNext(){
+  playSound('click');
+  QS.cur++;
+  if(QS.cur>=QS.qs.length){showQResults();return;}
+  renderQQ();
+}
+function showQResults(){
+  clearInterval(QS.timer);
+  document.getElementById('qCard').style.display='none';
+  document.getElementById('qNxt').classList.remove('on');
+  const wrap=document.getElementById('qResWrap');
+  wrap.style.display='flex';wrap.style.flexDirection='column';wrap.style.alignItems='center';
+  const n=QS.qs.length,c=QS.corr,pct=Math.round(c/n*100);
+  let grade='';
+  if(pct>=90)grade='🏆 ¡Maestro de los Sectores!';else if(pct>=70)grade='⭐⭐⭐⭐ ¡Excelente!';else if(pct>=50)grade='⭐⭐⭐ Bien, sigue practicando';else grade='⭐⭐ Repasa las fórmulas';
+  wrap.innerHTML=`<div class="qrc">
+    <div class="qrt">🏆 Resultados del Quiz</div>
+    <div class="qrb">${c}</div>
+    <div class="qrs">de ${n} correctas (${pct}%)</div>
+    <div class="qrg">${grade}</div>
+    <div class="qrbkd">${QS.ans.map((a,i)=>`<div class="qritem"><span class="qricon">${a.correct?'✅':'❌'}</span><span class="qrqt">${i+1}. ${a.q.substring(0,50)}${a.q.length>50?'…':''}</span><span class="qrtag ${a.correct?'qrcor':'qrwrg'}">${a.correct?'Correcto':'Incorrecto'}</span></div>`).join('')}</div>
+    <div class="qrbtns">
+      <button class="qrbtn retry" onclick="playSound('click');startQuiz()">🔄 Reintentar</button>
+      <button class="qrbtn mmenu" onclick="playSound('click');goMenu()">🏠 Menú Principal</button>
+    </div>
+  </div>`;
+  if(pct>=60)launchConfetti(pct>=90?80:35);
+  try{const bq=parseInt(localStorage.getItem('psQuizBest')||'0');if(c>bq){localStorage.setItem('psQuizBest',c);document.getElementById('menuBestQuiz').textContent='Mejor quiz: '+c+'/10';}}catch(e){}
+}
+
+// ─── INIT ───
+document.body.addEventListener('click', resumeAC, {once: true});
+function init(){
+  try{
+    const bq=localStorage.getItem('psQuizBest');
+    if(bq) document.getElementById('menuBestQuiz').textContent='Mejor quiz: '+bq+'/10';
+    const bg=localStorage.getItem('psGameBest');
+    if(bg) document.getElementById('menuBestScore').textContent='Mejor: '+bg+' pts';
+    const bi=localStorage.getItem('psInfBest');
+    if(bi) document.getElementById('menuBestInf').textContent='Récord: '+bi+' pts';
+  }catch(e){}
+  showSc('menu');updSBg(rSl);updSBg(aSl);drawPizza();updEdu();
+}
+init();
+</script>
+</body>
+</html>
