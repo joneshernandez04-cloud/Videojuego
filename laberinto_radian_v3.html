@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Laberinto del Radián</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#f0c060;--gold2:#c89030;--amber:#d08020;
+  --dim:#5a3818;--bg:#07050a;--border:#3a2510;
+}
+body{
+  background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  min-height:100vh;font-family:'Courier New',monospace;
+  color:#e8d5a3;padding:10px 8px 20px;overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse at 15% 95%,rgba(110,45,0,.3) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 5%,rgba(90,20,60,.25) 0%,transparent 50%);
+}
+
+/* =====================================================================  MENU  */
+#menuScreen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:fixed;inset:0;z-index:200;background:#07050a;
+  background-image:
+    radial-gradient(ellipse at 20% 80%,rgba(120,50,0,.35) 0%,transparent 55%),
+    radial-gradient(ellipse at 80% 20%,rgba(80,20,70,.3)  0%,transparent 55%);
+  padding:30px 20px;text-align:center;
+}
+.menu-ornament{font-size:42px;margin-bottom:6px;animation:floatIcon 3s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px rgba(240,160,50,.75))}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.menu-title-line{font-size:11px;letter-spacing:8px;color:var(--dim);text-transform:uppercase;margin-bottom:5px}
+#menuTitle{font-size:clamp(26px,6vw,50px);letter-spacing:3px;color:var(--gold);
+  text-shadow:0 0 30px rgba(240,160,50,.9),0 0 70px rgba(240,160,50,.4);
+  font-weight:normal;line-height:1.18;margin-bottom:6px}
+.menu-subtitle{font-size:11px;color:#7a5030;letter-spacing:5px;text-transform:uppercase;margin-bottom:26px}
+.divider{display:flex;align-items:center;gap:12px;margin-bottom:20px;width:100%;max-width:400px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.divider span{color:var(--amber);font-size:13px}
+.menu-info{background:rgba(12,9,8,.8);border:1px solid #2e1c0c;
+  padding:16px 22px;max-width:400px;width:100%;margin-bottom:22px;position:relative}
+.menu-info::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.info-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;
+  text-align:left;font-size:12px;color:#9a7848;line-height:1.5}
+.info-row:last-child{margin-bottom:0}
+.info-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+#btnStart{
+  background:linear-gradient(180deg,#1e1208,#120b04);border:2px solid var(--gold2);
+  color:var(--gold);padding:15px 46px;font-family:'Courier New',monospace;
+  font-size:15px;letter-spacing:5px;cursor:pointer;text-transform:uppercase;
+  position:relative;overflow:hidden;transition:all .25s;box-shadow:0 0 25px rgba(200,130,20,.2)}
+#btnStart::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(240,180,60,.12),transparent);transition:left .4s}
+#btnStart:hover{border-color:var(--gold);box-shadow:0 0 40px rgba(240,160,50,.35)}
+#btnStart:hover::before{left:100%}
+#btnStart:active{transform:scale(.97)}
+.menu-footer{margin-top:16px;font-size:10px;color:#2e1e0a;letter-spacing:3px;text-transform:uppercase}
+
+/* =====================================================================  CUTSCENES  */
+#cutsceneScreen{
+  display:none;position:fixed;inset:0;z-index:190;
+  background:#07050a;flex-direction:column;
+  align-items:center;justify-content:center;padding:20px;
+  gap:0;
+}
+#cutsceneScreen.on{display:flex}
+#csArtWrap{
+  width:100%;max-width:480px;
+  border:2px solid var(--border);
+  background:#0a0604;position:relative;overflow:hidden;
+  margin-bottom:0;
+}
+#csArtWrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent);z-index:1}
+#csArtWrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent);z-index:1}
+#csArtWrap svg{display:block;width:100%;height:auto}
+#csTextBox{
+  width:100%;max-width:480px;
+  background:rgba(10,7,4,.96);border:1px solid var(--border);border-top:none;
+  padding:22px 28px 18px;position:relative;
+}
+#csTextBox::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent)}
+#csSceneNum{font-size:9px;color:#4a2c10;letter-spacing:4px;text-transform:uppercase;margin-bottom:8px}
+#csNarration{
+  font-size:clamp(13px,2.5vw,16px);color:#d4b882;line-height:1.7;
+  font-style:italic;letter-spacing:.3px;
+  min-height:60px;
+  animation:fadeText .6s ease;
+}
+@keyframes fadeText{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#csBtnRow{
+  width:100%;max-width:480px;
+  display:flex;justify-content:flex-end;margin-top:14px;
+}
+#csBtnNext{
+  background:rgba(20,12,4,.9);border:1px solid var(--gold2);
+  color:var(--gold);padding:11px 28px;font-family:'Courier New',monospace;
+  font-size:13px;letter-spacing:4px;cursor:pointer;text-transform:uppercase;
+  transition:all .2s;
+}
+#csBtnNext:hover{background:rgba(40,24,8,.95);border-color:var(--gold);
+  box-shadow:0 0 18px rgba(240,160,50,.3)}
+
+/* =====================================================================  JUEGO  */
+#gameTitle{font-size:clamp(14px,3vw,21px);letter-spacing:4px;color:var(--gold);
+  text-shadow:0 0 20px rgba(240,160,50,.55);text-transform:uppercase;margin-bottom:2px;
+  font-weight:normal;text-align:center;display:none}
+#gameSubtitle{font-size:10px;color:#3a2010;letter-spacing:4px;text-transform:uppercase;
+  margin-bottom:8px;text-align:center;display:none}
+#gameArea{display:none;flex-direction:column;align-items:center;width:100%;max-width:650px}
+#hud{display:flex;align-items:center;justify-content:space-between;
+  width:100%;max-width:640px;padding:5px 14px;
+  background:rgba(8,5,4,.97);border:1px solid var(--border);border-bottom:none}
+.hud-block{display:flex;align-items:center;gap:6px;min-width:100px}
+.hud-block.center{justify-content:center;flex:1;min-width:0;gap:14px}
+.hud-block.right{justify-content:flex-end}
+.hud-label{font-size:9px;color:#4a2c10;letter-spacing:3px;text-transform:uppercase}
+.hearts{display:flex;gap:4px}
+.heart{font-size:16px;transition:filter .35s,transform .35s}
+.heart.lost{filter:grayscale(1) brightness(.2);transform:scale(.75)}
+.hud-key{font-size:17px;transition:filter .3s,transform .3s}
+.hud-key.no-key{filter:grayscale(1) brightness(.25)}
+.keys-val{font-size:12px;color:#c09050;letter-spacing:1px}
+#timerDisplay{font-size:15px;color:var(--gold);letter-spacing:3px;
+  text-shadow:0 0 12px rgba(240,160,50,.4);font-variant-numeric:tabular-nums}
+#mainCanvas{border:1px solid var(--border);border-top:none;display:block;
+  width:100%;max-width:640px;height:auto;cursor:none}
+#hint{font-size:10px;color:#2e1c0c;letter-spacing:3px;text-transform:uppercase;
+  text-align:center;margin-top:6px}
+#phaseBanner{font-size:11px;color:#7a5028;letter-spacing:4px;text-transform:uppercase;
+  text-align:center;margin-top:4px;min-height:16px;transition:color .3s}
+#phaseBanner.phase2{color:#4a8a60}
+
+/* D-pad */
+#touchPad{display:none;flex-direction:column;align-items:center;gap:4px;margin-top:10px}
+.t-row{display:flex;gap:4px}
+.t-btn{width:56px;height:56px;background:rgba(30,18,6,.94);border:1px solid #4a3010;
+  color:#b08040;font-size:21px;border-radius:4px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+  transition:background .1s;touch-action:manipulation}
+.t-btn:active{background:rgba(80,50,12,.95)}
+.t-center{width:56px;height:56px;background:rgba(18,10,2,.7);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;color:#3d2a14;font-size:17px}
+
+/* =====================================================================  CARTAS  */
+#cardOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:60;
+  align-items:center;justify-content:center;padding:16px}
+#cardOverlay.on{display:flex}
+#cardPanel{background:#0a0706;border:2px solid #7a4a18;max-width:520px;width:100%;
+  padding:20px 16px 18px;position:relative;box-shadow:0 0 80px rgba(200,120,20,.3);
+  animation:slideIn .25s ease}
+#cardPanel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#b07020,var(--gold),#b07020,transparent)}
+.cg-title{text-align:center;margin-bottom:4px}
+.cg-title .ci{font-size:30px;display:block}
+.cg-title h2{font-size:15px;letter-spacing:4px;color:var(--gold);font-weight:normal;text-transform:uppercase}
+.cg-sub{text-align:center;font-size:11px;color:#7a5028;letter-spacing:2px;margin-bottom:12px}
+#cardProgress{text-align:center;font-size:12px;color:#9a7040;margin-bottom:12px;letter-spacing:2px}
+#cardGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;justify-items:center}
+.card-wrap{width:76px;height:104px;perspective:600px;cursor:pointer}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;
+  transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.card-wrap.flipped .card-inner,.card-wrap.matched .card-inner{transform:rotateY(180deg)}
+.card-wrap.matched .card-front{border-color:#40b050;box-shadow:0 0 12px rgba(60,180,80,.4)}
+.card-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:3px;
+  border:1px solid #3a2510;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card-back{background:linear-gradient(145deg,#1a0e06,#0e0804)}
+.card-back svg,.card-front svg{width:100%;height:100%}
+.card-front{background:linear-gradient(145deg,#120b05,#1a1008);transform:rotateY(180deg);border-color:#6a4018}
+.card-wrap.no-match .card-inner{animation:wrongFlash .35s ease}
+@keyframes wrongFlash{0%,100%{transform:rotateY(180deg)}
+  25%{transform:rotateY(185deg) translateX(-3px)}75%{transform:rotateY(175deg) translateX(3px)}}
+#cardMessage{text-align:center;margin-top:10px;font-size:14px;min-height:20px;color:var(--gold);letter-spacing:1px}
+
+/* =====================================================================  QUIZ  */
+#quizOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:50;
+  align-items:center;justify-content:center;padding:20px}
+#quizOverlay.on{display:flex}
+@keyframes slideIn{from{opacity:0;transform:translateY(-16px) scale(.96)}to{opacity:1;transform:none}}
+#quizPanel{background:#0c0906;border:2px solid #6a4018;max-width:480px;width:100%;
+  padding:24px 20px 20px;position:relative;box-shadow:0 0 80px rgba(160,90,10,.4);animation:slideIn .22s ease}
+#quizPanel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#b07020,var(--gold),#b07020,transparent)}
+.quiz-header{text-align:center;font-size:10px;letter-spacing:5px;color:#a07030;text-transform:uppercase;margin-bottom:10px}
+.quiz-icon{font-size:36px;text-align:center;display:block;margin-bottom:6px}
+#quizLives{display:flex;justify-content:center;gap:5px;margin-bottom:12px}
+.ql-h{font-size:18px;transition:filter .3s,transform .3s}
+.ql-h.lost{filter:grayscale(1) brightness(.2);transform:scale(.7)}
+#questionText{font-size:18px;color:#e8d5a3;text-align:center;margin-bottom:18px;
+  line-height:1.45;min-height:50px;display:flex;align-items:center;justify-content:center}
+#answersGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ans-btn{background:#160e06;border:1px solid #402808;color:#c0a070;padding:13px 8px;
+  cursor:pointer;font-family:'Courier New',monospace;font-size:13px;
+  text-align:left;border-radius:2px;line-height:1.3;
+  transition:background .13s,border-color .13s,color .13s,transform .1s}
+.ans-btn:hover:not(:disabled){background:#261806;border-color:#c07828;color:#f0d070;transform:translateY(-1px)}
+.ans-btn:disabled{cursor:default}
+.ans-btn.correct{background:#0a1e0a!important;border-color:#40b050!important;color:#50e060!important}
+.ans-btn.wrong{background:#1e0a0a!important;border-color:#b03030!important;color:#f05050!important;
+  animation:wShake .3s ease}
+@keyframes wShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+#quizFeedback{margin-top:12px;text-align:center;font-size:14px;min-height:22px;letter-spacing:1px}
+
+/* =====================================================================  FIN  */
+.endScreen{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.97);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;text-align:center;padding:24px;overflow-y:auto}
+.endScreen.on{display:flex;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.end-icon{font-size:64px;margin-bottom:4px}
+.end-title{font-size:clamp(22px,6vw,40px);letter-spacing:6px;text-transform:uppercase;font-weight:normal}
+.end-sub{font-size:13px;color:#8a6840;letter-spacing:2px;line-height:2}
+.btn-play{margin-top:6px;background:transparent;border:2px solid #8a5c20;color:var(--gold);
+  padding:11px 30px;font-family:'Courier New',monospace;font-size:14px;
+  letter-spacing:4px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.btn-play:hover{background:rgba(130,80,20,.2);border-color:var(--gold);box-shadow:0 0 20px rgba(240,160,50,.3)}
+#winScreen  .end-title{color:var(--gold);text-shadow:0 0 40px rgba(255,180,50,.65)}
+#loseScreen .end-title{color:#c03030;text-shadow:0 0 40px rgba(200,50,50,.55)}
+
+/* Registro de nombre */
+#nameBlock{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  background:rgba(12,9,6,.9);border:1px solid var(--border);
+  padding:18px 28px;max-width:340px;width:100%;position:relative;
+}
+#nameBlock::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+#nameBlock label{font-size:10px;color:#7a5028;letter-spacing:3px;text-transform:uppercase}
+#playerNameInput{
+  background:#0a0704;border:1px solid #5a3a18;color:var(--gold);
+  padding:10px 16px;font-family:'Courier New',monospace;font-size:16px;
+  letter-spacing:2px;text-align:center;width:100%;outline:none;
+  transition:border-color .2s;
+}
+#playerNameInput:focus{border-color:var(--gold2)}
+#btnSaveName{
+  background:rgba(20,12,4,.9);border:1px solid var(--gold2);color:var(--gold);
+  padding:10px 24px;font-family:'Courier New',monospace;font-size:13px;
+  letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:all .2s;
+}
+#btnSaveName:hover{border-color:var(--gold);background:rgba(40,24,8,.9)}
+
+/* Tabla de tiempos */
+#leaderBoard{
+  max-width:380px;width:100%;
+  background:rgba(8,5,3,.9);border:1px solid #2a1808;
+  padding:14px 18px;display:none;
+}
+.lb-title{font-size:10px;color:#6a4020;letter-spacing:4px;text-transform:uppercase;
+  text-align:center;margin-bottom:10px;padding-bottom:8px;
+  border-bottom:1px solid #2a1808}
+.lb-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(50,30,10,.4);font-size:13px}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{color:#6a4020;width:24px;font-size:11px}
+.lb-name{color:#c0a070;flex:1;text-align:left;letter-spacing:1px}
+.lb-time{color:var(--gold);letter-spacing:2px;font-size:13px}
+.lb-row.me .lb-name,.lb-row.me .lb-time{color:#80e080}
+
+#knightConfirmOverlay.on{display:flex!important}
+#damageFlash{position:fixed;inset:0;z-index:80;background:rgba(200,20,20,.4);
+  pointer-events:none;opacity:0;transition:opacity .08s}
+
+/* =====================================================================  TOAST  */
+#phaseToast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(0,0,0,.92);border:2px solid var(--gold2);
+  padding:22px 36px;text-align:center;z-index:90;
+  box-shadow:0 0 60px rgba(200,140,20,.35);pointer-events:none;display:none}
+#phaseToast.on{display:block;animation:toastIn .4s ease}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-55%) scale(.9)}
+  to{opacity:1;transform:translate(-50%,-50%)}}
+.toast-icon{font-size:40px;display:block;margin-bottom:8px}
+.toast-title{font-size:18px;color:var(--gold);letter-spacing:4px;text-transform:uppercase}
+.toast-sub{font-size:11px;color:#9a7040;letter-spacing:2px;margin-top:4px}
+</style>
+</head>
+<body>
+
+<!-- ========================= MENÚ ========================= -->
+<div id="menuScreen">
+  <div class="menu-ornament">⚔️</div>
+  <p class="menu-title-line">Bienvenido al</p>
+  <h1 id="menuTitle">El Laberinto<br>del Radián</h1>
+  <p class="menu-subtitle">Explora · Responde · Escapa</p>
+  <div class="divider"><span>⬙</span></div>
+  <div class="menu-info">
+    <div class="info-row"><span class="info-icon">🗝️</span>
+      <span>Encuentra la <strong style="color:#c09050">llave</strong> en la primera sección superando el minijuego de parejas.</span></div>
+    <div class="info-row"><span class="info-icon">🚪</span>
+      <span>Usa la llave para abrir la <strong style="color:#c09050">puerta central</strong> hacia la segunda sección.</span></div>
+    <div class="info-row"><span class="info-icon">❓</span>
+      <span><strong style="color:#c09050">6 desafíos</strong> en el camino correcto. ¡Responde bien para avanzar!</span></div>
+    <div class="info-row"><span class="info-icon">⏱️</span>
+      <span>Tu tiempo queda registrado. ¿Puedes batir el <strong style="color:#c09050">récord del laberinto</strong>?</span></div>
+  </div>
+  <button id="btnStart" onclick="startCutscene()">⚔ Iniciar Aventura ⚔</button>
+  <button id="btnKnightMode" onclick="startKnightCutscene()" style="display:none;margin-top:10px;
+    background:linear-gradient(180deg,#1a0808,#0e0404);border:2px solid #8a1818;color:#e04040;
+    padding:12px 36px;font-family:'Courier New',monospace;font-size:13px;letter-spacing:4px;
+    cursor:pointer;text-transform:uppercase;transition:all .25s;box-shadow:0 0 20px rgba(180,20,20,.2);"
+    onmouseover="this.style.borderColor='#e04040';this.style.boxShadow='0 0 35px rgba(220,40,40,.35)'"
+    onmouseout="this.style.borderColor='#8a1818';this.style.boxShadow='0 0 20px rgba(180,20,20,.2)'">
+    🔥 Modo Caballero 🔥</button>
+  <p id="kmDesc" style="display:none;font-size:10px;color:#6a2010;letter-spacing:2px;margin-top:6px;text-transform:uppercase">
+    ⚠ 1 vida · 3 min · recoge antorchas para ver</p>
+  <p class="menu-footer">⬙ &nbsp; El saber abre todas las puertas &nbsp; ⬙</p>
+</div>
+
+<!-- ========================= CUTSCENES ========================= -->
+<div id="cutsceneScreen">
+  <div id="csArtWrap"></div>
+  <div id="csTextBox">
+    <div id="csSceneNum"></div>
+    <div id="csNarration"></div>
+  </div>
+  <div id="csBtnRow">
+    <button id="csBtnNext" onclick="nextScene()">Continuar →</button>
+  </div>
+</div>
+
+<!-- ========================= CABECERA ========================= -->
+<h1 id="gameTitle">⚔ El Laberinto del Radián ⚔</h1>
+<p  id="gameSubtitle">Sección <span id="sectionLabel">I</span> — <span id="sectionDesc">Encuentra la llave</span></p>
+
+<!-- ========================= JUEGO ========================= -->
+<div id="gameArea">
+  <div id="hud">
+    <div class="hud-block">
+      <span class="hud-label">Vidas</span>
+      <div class="hearts" id="heartsEl"></div>
+    </div>
+    <div class="hud-block center">
+      <span class="hud-key no-key" id="hudKey" title="Llave">🗝️</span>
+      <span id="timerDisplay">00:00</span>
+      <span id="kmBadge" style="display:none;font-size:10px;color:#e04040;letter-spacing:2px;
+        text-transform:uppercase;background:rgba(100,10,10,.4);padding:2px 6px;border:1px solid #6a1010;
+        border-radius:2px">🔥 Caballero</span>
+    </div>
+    <div class="hud-block right">
+      <span class="hud-label">Retos</span>
+      <span class="keys-val" id="keysEl">0 / 6</span>
+    </div>
+  </div>
+  <canvas id="mainCanvas" width="640" height="640"></canvas>
+  <p id="hint">WASD / ↑↓←→ — mover &nbsp;·&nbsp; ❓ desafíos en el camino</p>
+  <!-- Knight Mode torch bar -->
+  <div id="torchBarWrap" style="display:none;width:100%;max-width:640px;
+    align-items:center;gap:8px;padding:4px 14px;background:rgba(8,4,2,.9);
+    border:1px solid #3a1808;border-top:none;font-size:10px;color:#b06020;letter-spacing:2px;">
+    <span>🔦</span>
+    <div style="flex:1;height:6px;background:#1a0c04;border-radius:3px;overflow:hidden">
+      <div id="torchBarFill" style="height:100%;background:linear-gradient(90deg,#e08010,#f0c040);
+        border-radius:3px;transition:width .3s;width:0%"></div>
+    </div>
+    <span id="torchBarTime" style="min-width:28px;text-align:right">0s</span>
+  </div>
+  <p id="phaseBanner">⚔ Sección I — Busca la llave 🗝️</p>
+  <div id="touchPad">
+    <div class="t-row">
+      <div style="width:56px"></div>
+      <button class="t-btn" ontouchstart="touchMove(-1,0);event.preventDefault()">▲</button>
+      <div style="width:56px"></div>
+    </div>
+    <div class="t-row">
+      <button class="t-btn" ontouchstart="touchMove(0,-1);event.preventDefault()">◀</button>
+      <div class="t-center">⚔</div>
+      <button class="t-btn" ontouchstart="touchMove(0,1);event.preventDefault()">▶</button>
+    </div>
+    <div class="t-row">
+      <div style="width:56px"></div>
+      <button class="t-btn" ontouchstart="touchMove(1,0);event.preventDefault()">▼</button>
+      <div style="width:56px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= CARTAS ========================= -->
+<div id="cardOverlay">
+  <div id="cardPanel">
+    <div class="cg-title"><span class="ci">🗝️</span><h2>¡Encuentra las Parejas!</h2></div>
+    <p class="cg-sub">Levanta dos cartas a la vez para descubrir sus pares</p>
+    <div id="cardProgress">Parejas: 0 / 6</div>
+    <div id="cardGrid"></div>
+    <div id="cardMessage"></div>
+  </div>
+</div>
+
+<!-- ========================= QUIZ ========================= -->
+<div id="quizOverlay">
+  <div id="quizPanel">
+    <span class="quiz-icon">🧙</span>
+    <div class="quiz-header">⚔ Desafío del Laberinto ⚔</div>
+    <div id="quizLives"></div>
+    <div id="questionText"></div>
+    <div id="answersGrid"></div>
+    <div id="quizFeedback"></div>
+  </div>
+</div>
+
+<!-- ========================= TOAST ========================= -->
+<div id="phaseToast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <div class="toast-title" id="toastTitle"></div>
+  <div class="toast-sub"  id="toastSub"></div>
+</div>
+
+<!-- ========================= WIN ========================= -->
+<div id="winScreen" class="endScreen">
+  <div class="end-icon">🏆</div>
+  <h2 class="end-title">¡Victoria!</h2>
+  <p class="end-sub" id="winStats"></p>
+  <div id="nameBlock">
+    <label for="playerNameInput">Tu nombre para el registro</label>
+    <input id="playerNameInput" type="text" maxlength="18" placeholder="Caballero Anónimo" autocomplete="off"/>
+    <button id="btnSaveName" onclick="saveName()">Registrar tiempo</button>
+  </div>
+  <div id="congratsMsg" style="display:none;text-align:center;font-size:14px;line-height:1.9;
+    padding:14px 24px;border:1px solid rgba(100,200,100,.3);background:rgba(0,30,0,.5);
+    max-width:340px;width:100%;letter-spacing:.5px;animation:fadeIn .5s ease"></div>
+  <div id="leaderBoard">
+    <div class="lb-title">🏆 Mejores tiempos 🏆</div>
+    <div id="lbRows"></div>
+  </div>
+  <button class="btn-play" onclick="showMenu()">↩ Menú</button>
+  <button class="btn-play" onclick="startCutscene()" style="margin-top:0">⟳ Jugar de nuevo</button>
+  <div id="knightInvite" style="display:none;max-width:380px;width:100%;text-align:center;
+    border:1px solid #6a1010;background:rgba(30,5,5,.7);padding:16px 22px;
+    animation:fadeIn .6s ease 0.4s both;">
+    <div style="font-size:26px;margin-bottom:6px">🔥</div>
+    <div style="font-size:13px;color:#e04040;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">
+      Modo Caballero desbloqueado</div>
+    <div style="font-size:12px;color:#9a5030;line-height:1.7;margin-bottom:12px">
+      ¿Te atreves a enfrentar el laberinto con 1 sola vida, visión mínima y un reloj que no perdona?
+    </div>
+    <button onclick="startKnightCutscene()" style="background:rgba(30,5,5,.9);
+      border:1px solid #8a1818;color:#e04040;padding:10px 28px;
+      font-family:'Courier New',monospace;font-size:13px;letter-spacing:3px;
+      cursor:pointer;text-transform:uppercase;transition:all .2s;"
+      onmouseover="this.style.borderColor='#e04040';this.style.background='rgba(60,10,10,.9)'"
+      onmouseout="this.style.borderColor='#8a1818';this.style.background='rgba(30,5,5,.9)'">
+      🔥 Aceptar el desafío
+    </button>
+  </div>
+
+</div><!-- end #winScreen -->
+
+<!-- ========================= LOSE ========================= -->
+<div id="loseScreen" class="endScreen">
+  <div class="end-icon">💀</div>
+  <h2 class="end-title" id="loseTitle">Sin vidas</h2>
+  <p class="end-sub" id="loseSub">El caballero ha caído en la oscuridad del laberinto…</p>
+  <button class="btn-play" onclick="showMenu()">↩ Menú</button>
+  <button class="btn-play" id="btnRetry" onclick="retryGame()" style="margin-top:0">⟳ Intentar de nuevo</button>
+</div>
+
+<!-- ========================= KNIGHT CONFIRM ========================= -->
+<div id="knightConfirmOverlay" style="display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.96);align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:420px;width:100%;background:#0a0504;border:2px solid #8a1818;
+    padding:32px 28px;text-align:center;box-shadow:0 0 80px rgba(180,20,20,.3);
+    animation:slideIn .25s ease;position:relative;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,#c04020,transparent)"></div>
+    <div style="font-size:52px;margin-bottom:12px;filter:drop-shadow(0 0 18px rgba(220,60,20,.7))">🔥</div>
+    <h2 style="font-size:22px;letter-spacing:4px;color:#e04040;font-weight:normal;
+      text-transform:uppercase;margin-bottom:8px;font-family:'Courier New',monospace;
+      text-shadow:0 0 30px rgba(220,60,20,.6)">Modo Caballero</h2>
+    <div style="width:60%;height:1px;background:linear-gradient(90deg,transparent,#6a1818,transparent);
+      margin:12px auto 18px"></div>
+    <p style="font-size:13px;color:#c07040;line-height:1.9;margin-bottom:8px;letter-spacing:.3px">
+      Solo tienes <strong style="color:#e04040">1 vida</strong>.<br>
+      Tienes un límite de <strong style="color:#e04040">4 minutos</strong>.<br>
+      La oscuridad es casi total — recoge <strong style="color:#f0a030">antorchas 🔦</strong> para ver.<br>
+      Un solo error y todo termina.
+    </p>
+    <div style="width:60%;height:1px;background:linear-gradient(90deg,transparent,#6a1818,transparent);
+      margin:18px auto 24px"></div>
+    <p style="font-size:14px;color:#9a5030;letter-spacing:2px;margin-bottom:24px;font-style:italic">
+      ¿Estás dispuesto a aceptar el reto?
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button onclick="acceptKnightChallenge()" style="background:rgba(40,5,5,.9);
+        border:2px solid #8a1818;color:#e04040;padding:13px 30px;
+        font-family:'Courier New',monospace;font-size:14px;letter-spacing:4px;
+        cursor:pointer;text-transform:uppercase;transition:all .2s;"
+        onmouseover="this.style.borderColor='#e04040';this.style.boxShadow='0 0 20px rgba(200,40,20,.4)'"
+        onmouseout="this.style.borderColor='#8a1818';this.style.boxShadow='none'">
+        ⚔ Acepto
+      </button>
+      <button onclick="declineKnightChallenge()" style="background:rgba(10,7,4,.9);
+        border:1px solid #3a2510;color:#7a5028;padding:13px 30px;
+        font-family:'Courier New',monospace;font-size:14px;letter-spacing:4px;
+        cursor:pointer;text-transform:uppercase;transition:all .2s;"
+        onmouseover="this.style.borderColor='#6a4020';this.style.color='#c09050'"
+        onmouseout="this.style.borderColor='#3a2510';this.style.color='#7a5028'">
+        ↩ Volver
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="damageFlash"></div>
+
+<script>
+'use strict';
+
+/* =====================================================================
+   CONFIG
+   ===================================================================== */
+const CELL=40, W_ROWS=21, W_COLS=43, VIEW_W=640, VIEW_H=640;
+const FOG_R=170, MAX_LIVES=3, CP_LEFT=3, CP_RIGHT=3;
+const DOOR_ROW=9, DOOR_COL=21;
+const FLOOR=0, WALL=1, DOOR=2, KEY_CELL=3, TORCH=4;
+
+// Knight Mode constants
+const KM_FOG_BASE    = 72;   // visión base muy reducida
+const KM_TORCH_BOOST = 18;   // segundos que dura una antorcha
+const KM_TIME_LIMIT  = 240;  // 4 minutos
+const KM_TORCHES     = 14;   // antorchas por mundo
+
+/* =====================================================================
+   PREGUNTAS
+   ===================================================================== */
+const BANK=[
+  {
+    q:"¿Qué es un radián?",
+    o:["Una unidad para medir longitudes",
+       "Una unidad para medir ángulos basada en el arco y el radio",
+       "Una medida de área de un círculo",
+       "Un tipo de número irracional"],
+    a:1
+  },
+  {
+    q:"¿Cuánto vale aproximadamente 1 radián en grados?",
+    o:["57°","47.3°","57.3°","100°"],
+    a:2
+  },
+  {
+    q:"¿Cuánto mide un ángulo llano en radianes?",
+    o:["π/2","π","2π","3π"],
+    a:1
+  },
+  {
+    q:"¿Cuántos radianes mide una vuelta completa?",
+    o:["π","2π","π/2","4π"],
+    a:1
+  },
+  {
+    q:"El valor de un radián depende de la longitud del radio.",
+    o:["Verdadero","Falso","Solo si r > 1","Depende del ángulo"],
+    a:1
+  },
+  {
+    q:"Un ángulo recto en radianes mide:",
+    o:["π","2π","π/2","π/4"],
+    a:2
+  },
+];
+
+// Preguntas adicionales exclusivas del Modo Caballero
+const BANK_KNIGHT=[
+  {
+    q:"¿Qué es un radián?",
+    o:["Una unidad para medir longitudes",
+       "Una unidad para medir ángulos basada en el arco y el radio",
+       "Una medida de área de un círculo",
+       "Un tipo de número irracional"],
+    a:1
+  },
+  {
+    q:"¿Cuánto vale aproximadamente 1 radián en grados?",
+    o:["57°","47.3°","57.3°","100°"],
+    a:2
+  },
+  {
+    q:"¿Cuánto mide un ángulo llano en radianes?",
+    o:["π/2","π","2π","3π"],
+    a:1
+  },
+  {
+    q:"¿Cuántos radianes mide una vuelta completa?",
+    o:["π","2π","π/2","4π"],
+    a:1
+  },
+  {
+    q:"El valor de un radián depende de la longitud del radio.",
+    o:["Verdadero","Falso","Solo si r > 1","Depende del ángulo"],
+    a:1
+  },
+  {
+    q:"Un ángulo recto en radianes mide:",
+    o:["π","2π","π/2","π/4"],
+    a:2
+  },
+  {
+    q:"¿Cuál es la relación entre grados y radianes?",
+    o:["180° = 2π rad","360° = π rad","180° = π rad","90° = 2π rad"],
+    a:2
+  },
+  {
+    q:"¿Cuál de las siguientes equivalencias es correcta?",
+    o:["90° = π","180° = π/2","360° = 2π","45° = π"],
+    a:2
+  },
+  {
+    q:"¿Cuál es el valor en radianes de 90°?",
+    o:["π","π/2","2π","π/4"],
+    a:1
+  },
+  {
+    q:"Si un ángulo mide π/2, entonces es:",
+    o:["Un ángulo llano","Un ángulo completo","Un ángulo recto","Un ángulo agudo"],
+    a:2
+  },
+];
+
+/* =====================================================================
+   CARTAS
+   ===================================================================== */
+const CARD_DEFS=[
+  {id:0,svg:`<svg viewBox="0 0 76 104" xmlns="http://www.w3.org/2000/svg">
+    <text x="38" y="78" text-anchor="middle" font-family="Georgia,serif" font-size="74"
+          fill="#f0c060" font-style="italic">π</text></svg>`},
+  {id:1,svg:`<svg viewBox="0 0 76 104" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="38" cy="46" r="25" fill="none" stroke="#f0c060" stroke-width="2.4"/>
+    <text x="38" y="51" text-anchor="middle" font-family="Georgia,serif" font-size="14"
+          fill="#f0c060" font-weight="bold">360°</text>
+    <text x="38" y="90" text-anchor="middle" font-family="serif" font-size="8.5"
+          fill="#9a6828">círculo completo</text></svg>`},
+  {id:2,svg:`<svg viewBox="0 0 76 104" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="38" cy="44" r="23" fill="none" stroke="#f0c060" stroke-width="2.2"/>
+    <circle cx="61" cy="44" r="3.5" fill="#f0c060"/>
+    <path d="M57,37 Q64,44 57,51" fill="none" stroke="#f0c060" stroke-width="1.3"/>
+    <text x="38" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="16"
+          fill="#f0c060" font-style="italic">2π</text>
+    <text x="38" y="89" text-anchor="middle" font-family="serif" font-size="8.5"
+          fill="#9a6828">radianes</text></svg>`},
+  {id:3,svg:`<svg viewBox="0 0 76 104" xmlns="http://www.w3.org/2000/svg">
+    <path d="M28,65 L56,65 A28,28 0 0,0 28,37 Z"
+          fill="rgba(240,192,96,.14)" stroke="#f0c060" stroke-width="2"/>
+    <path d="M38,65 A10,10 0 0,0 28,55" fill="none" stroke="#f0c060" stroke-width="1.2"/>
+    <text x="48" y="79" text-anchor="middle" font-family="Georgia,serif" font-size="13"
+          fill="#f0c060" font-style="italic">r</text>
+    <text x="20" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="13"
+          fill="#f0c060" font-style="italic">r</text>
+    <text x="38" y="93" text-anchor="middle" font-family="serif" font-size="8.5"
+          fill="#9a6828">sector radio r</text></svg>`},
+  {id:4,svg:`<svg viewBox="0 0 76 104" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="38" cy="25" r="13" fill="none" stroke="#f0c060" stroke-width="1.7"/>
+    <line x1="38" y1="25" x2="51" y2="25" stroke="#f0c060" stroke-width="1.5"/>
+    <text x="46" y="22" font-family="Georgia,serif" font-size="9" fill="#f0c060" font-style="italic">r</text>
+    <text x="38" y="66" text-anchor="middle" font-family="Georgia,serif" font-size="22"
+          fill="#f0c060" font-style="italic">2πr</text>
+    <line x1="12" y1="70" x2="64" y2="70" stroke="#f0c060" stroke-width="1" opacity=".5"/>
+    <text x="38" y="82" text-anchor="middle" font-family="serif" font-size="8.5" fill="#9a6828">longitud</text>
+    <text x="38" y="93" text-anchor="middle" font-family="serif" font-size="8.5" fill="#9a6828">circunferencia</text></svg>`},
+  {id:5,svg:`<svg viewBox="0 0 76 104" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10,66 A28,28 0 0,1 66,66 Z"
+          fill="rgba(240,192,96,.14)" stroke="#f0c060" stroke-width="2.2"/>
+    <line x1="10" y1="66" x2="66" y2="66" stroke="#f0c060" stroke-width="1.8"/>
+    <text x="38" y="58" text-anchor="middle" font-family="Georgia,serif" font-size="18"
+          fill="#f0c060" font-style="italic">π</text>
+    <text x="38" y="82" text-anchor="middle" font-family="serif" font-size="9" fill="#9a6828">semicírculo</text>
+    <text x="38" y="94" text-anchor="middle" font-family="serif" font-size="8.5" fill="#9a6828">π rad = 180°</text></svg>`},
+];
+
+const CARD_BACK_SVG=`<svg viewBox="0 0 76 104" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="4" width="68" height="96" rx="2" fill="none" stroke="#6a3a10" stroke-width="1.2"/>
+  <rect x="8" y="8" width="60" height="88" rx="1" fill="none" stroke="#4a2808" stroke-width=".7"/>
+  <line x1="38" y1="8" x2="38" y2="96" stroke="#3a2008" stroke-width=".5"/>
+  <line x1="8" y1="52" x2="68" y2="52" stroke="#3a2008" stroke-width=".5"/>
+  <circle cx="38" cy="52" r="16" fill="none" stroke="#6a3a10" stroke-width="1"/>
+  <circle cx="38" cy="52" r="8"  fill="none" stroke="#5a2a08" stroke-width=".8"/>
+  <text x="38" y="57" text-anchor="middle" font-size="11" fill="#7a4a18" font-family="serif">⚔</text>
+  <circle cx="16" cy="20" r="4" fill="none" stroke="#4a2808" stroke-width=".7"/>
+  <circle cx="60" cy="20" r="4" fill="none" stroke="#4a2808" stroke-width=".7"/>
+  <circle cx="16" cy="84" r="4" fill="none" stroke="#4a2808" stroke-width=".7"/>
+  <circle cx="60" cy="84" r="4" fill="none" stroke="#4a2808" stroke-width=".7"/>
+</svg>`;
+
+/* =====================================================================
+   ARTE DE ESCENAS — SVG inline
+   ===================================================================== */
+const SCENE_ART={
+  mountain:`<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#0d0618"/>
+      <stop offset="100%" stop-color="#050308"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="100%" r="60%">
+      <stop offset="0%" stop-color="rgba(255,140,20,.35)"/>
+      <stop offset="100%" stop-color="rgba(255,140,20,0)"/>
+    </radialGradient>
+    <radialGradient id="mist" cx="50%" cy="100%" r="50%">
+      <stop offset="0%" stop-color="rgba(200,160,80,.18)"/>
+      <stop offset="100%" stop-color="rgba(200,160,80,0)"/>
+    </radialGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="480" height="260" fill="url(#sky)"/>
+  <!-- Stars -->
+  <g fill="white" opacity=".7">
+    <circle cx="30"  cy="18" r="1.1"/><circle cx="80"  cy="10" r=".8"/>
+    <circle cx="140" cy="22" r="1.2"/><circle cx="200" cy="8"  r=".9"/>
+    <circle cx="260" cy="15" r="1"/><circle cx="310" cy="28"  r=".8"/>
+    <circle cx="380" cy="12" r="1.3"/><circle cx="440" cy="20" r=".9"/>
+    <circle cx="55"  cy="40" r=".7"/><circle cx="170" cy="35" r=".8"/>
+    <circle cx="350" cy="40" r=".7"/><circle cx="420" cy="45" r="1"/>
+    <circle cx="100" cy="55" r=".6"/><circle cx="230" cy="48" r=".8"/>
+    <circle cx="460" cy="32" r=".6"/>
+  </g>
+  <!-- Moon -->
+  <circle cx="420" cy="40" r="22" fill="#d4c080" opacity=".9"/>
+  <circle cx="430" cy="35" r="18" fill="#0d0618"/>
+  <!-- Forest background far -->
+  <path d="M0,200 Q30,160 60,195 Q90,155 120,195 Q150,155 180,195
+           Q210,145 240,190 Q270,145 300,195 Q330,160 360,195
+           Q390,150 420,195 Q450,160 480,195 L480,260 L0,260 Z"
+        fill="#0a0c08" opacity=".8"/>
+  <!-- Mountain -->
+  <path d="M80,260 Q140,100 240,60 Q340,100 400,260 Z" fill="#1a1410"/>
+  <path d="M80,260 Q140,100 240,60 Q340,100 400,260 Z"
+        fill="none" stroke="#2a2018" stroke-width="1.5"/>
+  <!-- Mountain texture lines -->
+  <g stroke="#2a2018" stroke-width="1" opacity=".6">
+    <path d="M180,160 Q200,140 220,150"/>
+    <path d="M250,150 Q270,135 290,155"/>
+    <path d="M160,200 Q190,175 210,185"/>
+    <path d="M260,185 Q285,170 310,185"/>
+  </g>
+  <!-- Cave opening -->
+  <path d="M200,260 Q200,215 218,205 Q240,198 262,205 Q280,215 280,260 Z" fill="#050203"/>
+  <path d="M200,260 Q200,215 218,205 Q240,198 262,205 Q280,215 280,260 Z"
+        fill="none" stroke="#4a2808" stroke-width="1.5"/>
+  <!-- Cave stone arch top -->
+  <path d="M195,230 Q195,200 240,195 Q285,200 285,230" fill="none" stroke="#6a4818" stroke-width="3"/>
+  <!-- Cave glow -->
+  <ellipse cx="240" cy="240" rx="35" ry="25" fill="url(#glow)"/>
+  <!-- Torches on sides of cave -->
+  <rect x="191" y="215" width="5" height="16" fill="#5a3010"/>
+  <ellipse cx="193" cy="213" rx="5" ry="7" fill="#ff9020" opacity=".9"/>
+  <ellipse cx="193" cy="211" rx="3" ry="5" fill="#ffe060" opacity=".7"/>
+  <rect x="284" y="215" width="5" height="16" fill="#5a3010"/>
+  <ellipse cx="287" cy="213" rx="5" ry="7" fill="#ff9020" opacity=".9"/>
+  <ellipse cx="287" cy="211" rx="3" ry="5" fill="#ffe060" opacity=".7"/>
+  <!-- Ground mist -->
+  <ellipse cx="240" cy="260" rx="200" ry="30" fill="url(#mist)"/>
+  <!-- Sign above cave -->
+  <rect x="168" y="178" width="144" height="26" rx="2"
+        fill="#1e1208" stroke="#8a5820" stroke-width="1.5"/>
+  <text x="240" y="196" text-anchor="middle" font-family="Georgia,serif"
+        font-size="12" fill="#f0c060" letter-spacing="1">Laberinto del Radián</text>
+  <!-- Sign posts -->
+  <line x1="185" y1="204" x2="185" y2="216" stroke="#5a3010" stroke-width="2"/>
+  <line x1="295" y1="204" x2="295" y2="216" stroke="#5a3010" stroke-width="2"/>
+  <!-- Ground -->
+  <rect x="0" y="252" width="480" height="8" fill="#1a1208" opacity=".8"/>
+</svg>`,
+
+  knight:`<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg2" cx="50%" cy="60%" r="70%">
+      <stop offset="0%" stop-color="#141018"/>
+      <stop offset="100%" stop-color="#05030a"/>
+    </radialGradient>
+    <radialGradient id="spotlight" cx="50%" cy="100%" r="60%">
+      <stop offset="0%" stop-color="rgba(240,160,60,.22)"/>
+      <stop offset="100%" stop-color="rgba(240,160,60,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="260" fill="url(#bg2)"/>
+  <!-- Background trees -->
+  <g fill="#0a0c0a" opacity=".7">
+    <path d="M30,260 L50,180 L70,260 Z"/><path d="M55,260 L72,190 L89,260 Z"/>
+    <path d="M380,260 L400,170 L420,260 Z"/><path d="M400,260 L418,185 L436,260 Z"/>
+    <path d="M150,260 L162,210 L174,260 Z"/><path d="M300,260 L315,200 L330,260 Z"/>
+  </g>
+  <!-- Ground -->
+  <rect x="0" y="230" width="480" height="30" fill="#110d08"/>
+  <ellipse cx="240" cy="260" rx="220" ry="20" fill="url(#spotlight)"/>
+  <!-- Knight shadow -->
+  <ellipse cx="240" cy="235" rx="30" ry="7" fill="#000" opacity=".5"/>
+  <!-- === Knight (big pixel-art) === -->
+  <!-- Cape -->
+  <rect x="220" y="130" width="40" height="90" fill="#6a1880" rx="2"/>
+  <!-- Body armor -->
+  <rect x="213" y="128" width="54" height="65" fill="#606880" rx="2"/>
+  <!-- Chest band -->
+  <rect x="215" y="135" width="50" height="12" fill="#4a4e60"/>
+  <rect x="215" y="132" width="50" height="5" fill="#c8a040"/>
+  <!-- Shoulder pads -->
+  <rect x="205" y="125" width="18" height="14" fill="#707a90" rx="3"/>
+  <rect x="257" y="125" width="18" height="14" fill="#707a90" rx="3"/>
+  <!-- Neck -->
+  <rect x="228" y="110" width="24" height="20" fill="#606880"/>
+  <!-- Helmet -->
+  <rect x="210" y="70" width="60" height="50" fill="#686e88" rx="3"/>
+  <rect x="212" y="72" width="56" height="18" fill="#808898" rx="2"/>
+  <!-- Visor -->
+  <rect x="218" y="88" width="44" height="22" fill="#1a1a28" rx="1"/>
+  <!-- Eye slits -->
+  <rect x="222" y="94" width="14" height="6" fill="#40a8e8" opacity=".8" rx="1"/>
+  <rect x="244" y="94" width="14" height="6" fill="#40a8e8" opacity=".8" rx="1"/>
+  <!-- Helmet plume -->
+  <rect x="234" y="42" width="12" height="30" fill="#c83010"/>
+  <rect x="237" y="32" width="8" height="20" fill="#e85020"/>
+  <!-- Legs -->
+  <rect x="215" y="192" width="22" height="42" fill="#505870" rx="2"/>
+  <rect x="243" y="192" width="22" height="42" fill="#505870" rx="2"/>
+  <!-- Boots -->
+  <rect x="213" y="228" width="26" height="10" fill="#3a2a18" rx="2"/>
+  <rect x="241" y="228" width="26" height="10" fill="#3a2a18" rx="2"/>
+  <!-- Sword (right) -->
+  <rect x="275" y="80" width="10" height="90" fill="#c8c8d8" rx="2"/>
+  <rect x="265" y="122" width="30" height="10" fill="#c0a040" rx="2"/>
+  <rect x="277" y="72" width="9" height="16" fill="#a08030" rx="1"/>
+  <!-- Shield (left) -->
+  <path d="M193,128 L170,132 L170,175 L181,190 L193,183 Z" fill="#8a2e10"/>
+  <path d="M193,128 L170,132 L170,175 L181,190 L193,183 Z"
+        fill="none" stroke="#c8a040" stroke-width="2"/>
+  <line x1="175" y1="152" x2="191" y2="152" stroke="#c8a040" stroke-width="2"/>
+  <line x1="182" y1="138" x2="182" y2="166" stroke="#c8a040" stroke-width="2"/>
+  <!-- Stars/sparkles around knight -->
+  <g fill="#f0c060" opacity=".5">
+    <polygon points="155,95 158,103 166,103 160,108 162,116 155,111 148,116 150,108 144,103 152,103"
+             transform="scale(.5) translate(155,60)"/>
+    <polygon points="320,70 322,76 328,76 323,80 325,86 320,82 315,86 317,80 312,76 318,76"
+             transform="scale(.6) translate(220,30)"/>
+  </g>
+</svg>`,
+
+  entering:`<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="caveglow" cx="50%" cy="100%" r="55%">
+      <stop offset="0%" stop-color="rgba(255,150,30,.5)"/>
+      <stop offset="100%" stop-color="rgba(255,150,30,0)"/>
+    </radialGradient>
+    <radialGradient id="darkbg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#100c18"/>
+      <stop offset="100%" stop-color="#040308"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="260" fill="url(#darkbg)"/>
+  <!-- Stars -->
+  <g fill="white" opacity=".5">
+    <circle cx="40" cy="20" r="1"/><circle cx="100" cy="12" r=".8"/>
+    <circle cx="160" cy="25" r="1.1"/><circle cx="380" cy="15" r=".9"/>
+    <circle cx="450" cy="30" r="1"/><circle cx="30" cy="55" r=".7"/>
+  </g>
+  <!-- Mountain silhouette -->
+  <path d="M0,260 Q100,140 200,80 Q300,140 480,260 Z" fill="#12100c"/>
+  <!-- Cave entrance -->
+  <path d="M176,260 Q176,195 200,182 Q240,170 280,182 Q304,195 304,260 Z" fill="#080404"/>
+  <path d="M170,245 Q170,190 200,178 Q240,165 280,178 Q310,190 310,245"
+        fill="none" stroke="#5a3010" stroke-width="3"/>
+  <!-- Cave glow from inside -->
+  <ellipse cx="240" cy="255" rx="55" ry="40" fill="url(#caveglow)"/>
+  <!-- Torches -->
+  <rect x="168" y="190" width="5" height="18" fill="#4a2808"/>
+  <ellipse cx="170" cy="188" rx="6" ry="8" fill="#ff8810" opacity=".95"/>
+  <ellipse cx="170" cy="186" rx="4" ry="6" fill="#ffe040" opacity=".7"/>
+  <rect x="307" y="190" width="5" height="18" fill="#4a2808"/>
+  <ellipse cx="310" cy="188" rx="6" ry="8" fill="#ff8810" opacity=".95"/>
+  <ellipse cx="310" cy="186" rx="4" ry="6" fill="#ffe040" opacity=".7"/>
+  <!-- Sign -->
+  <rect x="176" y="160" width="128" height="22" rx="2" fill="#1c1008" stroke="#7a4810" stroke-width="1.5"/>
+  <text x="240" y="176" text-anchor="middle" font-family="Georgia,serif"
+        font-size="11" fill="#f0c060" letter-spacing="1">Laberinto del Radián</text>
+  <!-- Knight silhouette entering — feet on ground -->
+  <g transform="translate(218,187) scale(.52)">
+    <!-- cape -->
+    <rect x="3" y="18" width="40" height="88" fill="#4a1060" opacity=".9"/>
+    <!-- body -->
+    <rect x="-5" y="16" width="52" height="65" fill="#404060" rx="1"/>
+    <!-- helmet -->
+    <rect x="-4" y="-30" width="50" height="50" fill="#484860" rx="2"/>
+    <!-- visor -->
+    <rect x="2" y="-14" width="38" height="18" fill="#0e0e1a" rx="1"/>
+    <!-- plume -->
+    <rect x="16" y="-55" width="8" height="28" fill="#a02010"/>
+    <!-- legs -->
+    <rect x="-3" y="80" width="20" height="42" fill="#383850"/>
+    <rect x="25" y="80" width="20" height="42" fill="#383850"/>
+    <!-- boots (flat on ground) -->
+    <rect x="-6" y="118" width="26" height="8" fill="#2a1c10" rx="1"/>
+    <rect x="23" y="118" width="26" height="8" fill="#2a1c10" rx="1"/>
+    <!-- sword -->
+    <rect x="54" y="-20" width="7" height="80" fill="#909098"/>
+    <rect x="47" y="22" width="21" height="8" fill="#b09030"/>
+  </g>
+  <!-- Foot shadow on ground -->
+  <ellipse cx="248" cy="251" rx="22" ry="5" fill="#000" opacity=".55"/>
+  <!-- Misty ground -->
+  <path d="M0,250 Q120,235 240,245 Q360,255 480,240 L480,260 L0,260 Z"
+        fill="#0a0806" opacity=".7"/>
+  <!-- Dramatic rays from cave -->
+  <g opacity=".08" fill="#ffcc60">
+    <path d="M240,260 L180,195 L200,195 Z"/>
+    <path d="M240,260 L215,190 L235,192 Z"/>
+    <path d="M240,260 L245,188 L260,190 Z"/>
+    <path d="M240,260 L268,196 L285,198 Z"/>
+  </g>
+</svg>`,
+
+  chest:`<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="chestGlow" cx="50%" cy="75%" r="55%">
+      <stop offset="0%" stop-color="rgba(255,200,50,.6)"/>
+      <stop offset="100%" stop-color="rgba(255,200,50,0)"/>
+    </radialGradient>
+    <radialGradient id="bgChest" cx="50%" cy="60%" r="70%">
+      <stop offset="0%" stop-color="#18140a"/>
+      <stop offset="100%" stop-color="#050403"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="260" fill="url(#bgChest)"/>
+  <!-- Background stonework -->
+  <g fill="none" stroke="#1e1810" stroke-width="1" opacity=".6">
+    <rect x="0"   y="0"   width="60" height="40"/><rect x="60"  y="0"  width="60" height="40"/>
+    <rect x="120" y="0"   width="60" height="40"/><rect x="180" y="0"  width="60" height="40"/>
+    <rect x="240" y="0"   width="60" height="40"/><rect x="300" y="0"  width="60" height="40"/>
+    <rect x="360" y="0"   width="60" height="40"/><rect x="420" y="0"  width="60" height="40"/>
+    <rect x="30"  y="40"  width="60" height="40"/><rect x="90"  y="40" width="60" height="40"/>
+    <rect x="150" y="40"  width="60" height="40"/><rect x="210" y="40" width="60" height="40"/>
+    <rect x="270" y="40"  width="60" height="40"/><rect x="330" y="40" width="60" height="40"/>
+    <rect x="390" y="40"  width="60" height="40"/>
+    <rect x="0"   y="80"  width="60" height="40"/><rect x="60"  y="80" width="60" height="40"/>
+    <rect x="120" y="80"  width="60" height="40"/>
+  </g>
+  <!-- Ground -->
+  <rect x="0" y="215" width="480" height="45" fill="#100c07"/>
+  <!-- Chest glow on floor -->
+  <ellipse cx="240" cy="250" rx="130" ry="30" fill="url(#chestGlow)"/>
+  <!-- TREASURE CHEST -->
+  <!-- Chest body -->
+  <rect x="168" y="165" width="144" height="72" rx="4" fill="#6a3a0a"/>
+  <rect x="168" y="165" width="144" height="72" rx="4" fill="none" stroke="#c8a040" stroke-width="2.5"/>
+  <!-- Chest lid -->
+  <path d="M164,165 Q240,130 316,165 L316,175 Q240,140 164,175 Z" fill="#8a5010"/>
+  <path d="M164,165 Q240,130 316,165" fill="none" stroke="#c8a040" stroke-width="2.5"/>
+  <!-- Metal bands -->
+  <rect x="168" y="192" width="144" height="6" fill="#c8a040" rx="1"/>
+  <rect x="226" y="165" width="28" height="72" fill="#c8a040" opacity=".4" rx="1"/>
+  <!-- Lock -->
+  <rect x="228" y="186" width="24" height="18" rx="3" fill="#c8a040"/>
+  <circle cx="240" cy="196" r="5" fill="#8a6010"/>
+  <rect x="237" y="196" width="6" height="8" fill="#6a4010" rx="1"/>
+  <!-- Coins/gems spilling out -->
+  <g fill="#f0c040" opacity=".95">
+    <circle cx="192" cy="238" r="7"/><circle cx="210" cy="243" r="8"/>
+    <circle cx="232" cy="240" r="6"/><circle cx="258" cy="244" r="7"/>
+    <circle cx="278" cy="239" r="8"/><circle cx="296" cy="242" r="6"/>
+    <circle cx="175" cy="244" r="5"/><circle cx="312" cy="240" r="5"/>
+  </g>
+  <!-- Gems -->
+  <polygon points="205,230 211,226 217,230 211,234" fill="#e040a0"/>
+  <polygon points="250,229 255,225 260,229 255,233" fill="#40e0e0"/>
+  <polygon points="270,228 275,223 280,228 275,232" fill="#a040e0"/>
+  <!-- Gold sparkle rays from chest -->
+  <g stroke="#f0d060" stroke-width="1.2" opacity=".5">
+    <line x1="240" y1="145" x2="240" y2="120"/><line x1="210" y1="148" x2="195" y2="128"/>
+    <line x1="270" y1="148" x2="285" y2="128"/>
+    <line x1="190" y1="160" x2="170" y2="148"/><line x1="290" y1="160" x2="310" y2="148"/>
+    <line x1="178" y1="175" x2="158" y2="168"/>
+    <line x1="302" y1="175" x2="322" y2="168"/>
+  </g>
+  <!-- Sparkle stars -->
+  <g fill="#f0e060">
+    <polygon points="240,118 242,124 248,124 243,128 245,134 240,130 235,134 237,128 232,124 238,124" opacity=".8"/>
+    <polygon points="185,138 186,143 191,143 187,146 189,151 185,148 181,151 183,146 179,143 184,143" opacity=".6" transform="scale(.7) translate(80,50)"/>
+  </g>
+  <!-- Knight kneeling -->
+  <g transform="translate(118,148) scale(.45)">
+    <rect x="3" y="20" width="38" height="75" fill="#4a1060" opacity=".9"/>
+    <rect x="-4" y="18" width="48" height="60" fill="#484868" rx="1"/>
+    <rect x="-3" y="-28" width="46" height="48" fill="#505868" rx="2"/>
+    <rect x="3" y="-12" width="36" height="16" fill="#0e0e1a" rx="1"/>
+    <rect x="14" y="-52" width="7" height="26" fill="#a02010"/>
+    <rect x="-2" y="78" width="18" height="20" fill="#383850"/>
+    <!-- Kneeling - one leg down -->
+    <rect x="24" y="90" width="20" height="16" fill="#383850" transform="rotate(20,34,90)"/>
+  </g>
+</svg>`,
+
+  scroll:`<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="scrollBg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#120f0a"/>
+      <stop offset="100%" stop-color="#060404"/>
+    </radialGradient>
+    <radialGradient id="parchGlow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="rgba(240,200,100,.15)"/>
+      <stop offset="100%" stop-color="rgba(240,200,100,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="260" fill="url(#scrollBg)"/>
+  <!-- Background stars small -->
+  <g fill="#f0c060" opacity=".15">
+    <circle cx="40"  cy="30"  r="1.5"/><circle cx="440" cy="25" r="1.5"/>
+    <circle cx="60"  cy="220" r="1.5"/><circle cx="420" cy="230" r="1.5"/>
+    <circle cx="20"  cy="130" r="1"/><circle cx="460" cy="130" r="1"/>
+  </g>
+  <!-- Parchment glow -->
+  <ellipse cx="240" cy="130" rx="200" ry="100" fill="url(#parchGlow)"/>
+  <!-- Scroll rolls (ends) -->
+  <ellipse cx="240" cy="52"  rx="155" ry="16" fill="#c8a050"/>
+  <ellipse cx="240" cy="52"  rx="155" ry="16" fill="#b8903e" opacity=".6"/>
+  <ellipse cx="240" cy="208" rx="155" ry="16" fill="#c8a050"/>
+  <ellipse cx="240" cy="208" rx="155" ry="16" fill="#b8903e" opacity=".6"/>
+  <!-- Scroll rolls rods -->
+  <rect x="78"  y="44"  width="8" height="24" rx="3" fill="#8a6020"/>
+  <rect x="394" y="44"  width="8" height="24" rx="3" fill="#8a6020"/>
+  <rect x="78"  y="200" width="8" height="24" rx="3" fill="#8a6020"/>
+  <rect x="394" y="200" width="8" height="24" rx="3" fill="#8a6020"/>
+  <!-- Parchment body -->
+  <rect x="85" y="52" width="310" height="156" fill="#d4aa60" rx="2"/>
+  <rect x="85" y="52" width="310" height="156" fill="#c89840" opacity=".35" rx="2"/>
+  <!-- Parchment texture lines -->
+  <g stroke="#b88030" stroke-width=".5" opacity=".3">
+    <line x1="85" y1="80"  x2="395" y2="80"/>
+    <line x1="85" y1="108" x2="395" y2="108"/>
+    <line x1="85" y1="136" x2="395" y2="136"/>
+    <line x1="85" y1="164" x2="395" y2="164"/>
+    <line x1="85" y1="192" x2="395" y2="192"/>
+  </g>
+  <!-- Decorative border on parchment -->
+  <rect x="92" y="59" width="296" height="142" fill="none"
+        stroke="#8a5010" stroke-width="1.5" stroke-dasharray="6,4" rx="1"/>
+  <!-- Corner ornaments -->
+  <g fill="#8a5010" font-size="14" font-family="serif" text-anchor="middle">
+    <text x="100" y="74">✦</text><text x="380" y="74">✦</text>
+    <text x="100" y="197">✦</text><text x="380" y="197">✦</text>
+  </g>
+  <!-- Divider top -->
+  <line x1="110" y1="82" x2="370" y2="82" stroke="#8a5010" stroke-width="1" opacity=".6"/>
+  <!-- "El conocimiento" title -->
+  <text x="240" y="105" text-anchor="middle" font-family="Georgia,serif"
+        font-size="13" fill="#3a1a04" letter-spacing="2" font-style="italic">— Inscripción del Laberinto —</text>
+  <!-- Main quote line 1 -->
+  <text x="240" y="133" text-anchor="middle" font-family="Georgia,serif"
+        font-size="16.5" fill="#1e0e02" letter-spacing=".5" font-weight="bold">
+    "El conocimiento es
+  </text>
+  <!-- Main quote line 2 -->
+  <text x="240" y="156" text-anchor="middle" font-family="Georgia,serif"
+        font-size="16.5" fill="#1e0e02" letter-spacing=".5" font-weight="bold">
+    nuestra arma más
+  </text>
+  <!-- Main quote line 3 -->
+  <text x="240" y="179" text-anchor="middle" font-family="Georgia,serif"
+        font-size="16.5" fill="#1e0e02" letter-spacing=".5" font-weight="bold">
+    poderosa"
+  </text>
+  <!-- Divider bottom -->
+  <line x1="110" y1="188" x2="370" y2="188" stroke="#8a5010" stroke-width="1" opacity=".6"/>
+  <!-- Wax seal -->
+  <circle cx="240" cy="130" r="18" fill="none" stroke="#c84020" stroke-width="1" opacity=".12"/>
+</svg>`
+};
+
+const SCENE_ART_EXTRA={
+  lost_knight:`<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="lk_bg" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#08040e"/>
+      <stop offset="100%" stop-color="#020104"/>
+    </radialGradient>
+    <radialGradient id="lk_glow" cx="50%" cy="55%" r="30%">
+      <stop offset="0%" stop-color="rgba(255,120,20,.18)"/>
+      <stop offset="100%" stop-color="rgba(255,120,20,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="260" fill="url(#lk_bg)"/>
+  <!-- Dense maze walls all around — oppressive -->
+  <g fill="#0e0c0a" stroke="#1a1410" stroke-width=".8">
+    <rect x="0"   y="0"   width="40" height="260"/><rect x="440" y="0" width="40" height="260"/>
+    <rect x="40"  y="0"   width="260" height="36"/><rect x="40" y="224" width="400" height="36"/>
+    <rect x="40"  y="36"  width="36"  height="80"/><rect x="40" y="148" width="36" height="76"/>
+    <rect x="140" y="36"  width="36"  height="60"/><rect x="300" y="36" width="36" height="70"/>
+    <rect x="340" y="36"  width="64"  height="36"/>
+    <rect x="300" y="150" width="100" height="36"/>
+    <rect x="140" y="160" width="60"  height="64"/>
+    <rect x="220" y="110" width="40"  height="50"/>
+    <rect x="76"  y="148" width="64"  height="36"/>
+  </g>
+  <!-- Tiny torch flicker (only light source) -->
+  <ellipse cx="240" cy="140" rx="80" ry="60" fill="url(#lk_glow)"/>
+  <!-- Knight small, hunched, lost -->
+  <g transform="translate(218,115) scale(.38)" opacity=".85">
+    <!-- cape faded -->
+    <rect x="3" y="20" width="38" height="80" fill="#2a0830" opacity=".8"/>
+    <rect x="-4" y="18" width="48" height="58" fill="#2a2840" rx="1"/>
+    <rect x="-3" y="-26" width="44" height="46" fill="#303040" rx="2"/>
+    <rect x="3" y="-12" width="36" height="14" fill="#0a0a14" rx="1"/>
+    <rect x="14" y="-48" width="6" height="22" fill="#601008" opacity=".6"/>
+    <!-- legs -->
+    <rect x="-2" y="76" width="18" height="40" fill="#22203a"/>
+    <rect x="24" y="76" width="18" height="40" fill="#22203a"/>
+    <!-- boots -->
+    <rect x="-5" y="112" width="24" height="7" fill="#1a1008" rx="1"/>
+    <rect x="22" y="112" width="24" height="7" fill="#1a1008" rx="1"/>
+    <!-- sword dragging on ground -->
+    <rect x="50" y="40" width="6" height="70" fill="#505058" opacity=".6"/>
+    <rect x="44" y="60" width="17" height="6" fill="#806020" opacity=".6"/>
+  </g>
+  <!-- Question marks floating — confusion -->
+  <g font-family="serif" text-anchor="middle" fill="#4a2a08" font-size="18">
+    <text x="160" y="100" opacity=".5">?</text>
+    <text x="310" y="120" opacity=".4">?</text>
+    <text x="200" y="180" opacity=".3">?</text>
+    <text x="290" y="95"  opacity=".5">?</text>
+  </g>
+  <!-- Sand-clock / hourglass symbol -->
+  <g transform="translate(390,50)" fill="#3a1808" opacity=".5">
+    <path d="M0,0 L24,0 L12,18 L24,36 L0,36 L12,18 Z" stroke="#5a2808" stroke-width="1.5" fill="none"/>
+    <line x1="0" y1="0" x2="24" y2="0" stroke="#5a2808" stroke-width="2"/>
+    <line x1="0" y1="36" x2="24" y2="36" stroke="#5a2808" stroke-width="2"/>
+    <path d="M4,34 Q12,20 20,34" fill="#5a2808"/>
+  </g>
+  <!-- Closing walls effect — vignette very heavy -->
+  <radialGradient id="lk_vig" cx="50%" cy="55%" r="55%">
+    <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+    <stop offset="100%" stop-color="rgba(0,0,0,.92)"/>
+  </radialGradient>
+  <rect width="480" height="260" fill="url(#lk_vig)"/>
+</svg>`,
+
+  treasure_room:`<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="tr_bg" cx="50%" cy="60%" r="70%">
+      <stop offset="0%" stop-color="#201408"/>
+      <stop offset="100%" stop-color="#080503"/>
+    </radialGradient>
+    <radialGradient id="tr_gold" cx="50%" cy="70%" r="60%">
+      <stop offset="0%" stop-color="rgba(255,215,50,.6)"/>
+      <stop offset="100%" stop-color="rgba(255,180,20,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="260" fill="url(#tr_bg)"/>
+  <!-- Stone floor -->
+  <rect x="0" y="200" width="480" height="60" fill="#120e08"/>
+  <g stroke="#1e1810" stroke-width=".8" fill="none">
+    <line x1="0" y1="220" x2="480" y2="220"/>
+    <line x1="0" y1="240" x2="480" y2="240"/>
+    <line x1="80"  y1="200" x2="80"  y2="260"/>
+    <line x1="160" y1="200" x2="160" y2="260"/>
+    <line x1="240" y1="200" x2="240" y2="260"/>
+    <line x1="320" y1="200" x2="320" y2="260"/>
+    <line x1="400" y1="200" x2="400" y2="260"/>
+  </g>
+  <!-- Gold glow from treasure -->
+  <ellipse cx="240" cy="220" rx="220" ry="80" fill="url(#tr_gold)"/>
+  <!-- MOUNTAINS of gold coins -->
+  <g fill="#d4900a">
+    <!-- Left pile -->
+    <ellipse cx="100" cy="215" rx="60" ry="18"/><ellipse cx="85"  cy="207" rx="45" ry="14"/>
+    <ellipse cx="110" cy="200" rx="35" ry="11"/><ellipse cx="95"  cy="194" rx="25" ry="8"/>
+    <!-- Center pile (highest) -->
+    <ellipse cx="240" cy="218" rx="80" ry="22"/><ellipse cx="240" cy="208" rx="64" ry="18"/>
+    <ellipse cx="240" cy="198" rx="50" ry="15"/><ellipse cx="240" cy="190" rx="36" ry="11"/>
+    <ellipse cx="240" cy="183" rx="22" ry="8"/>
+    <!-- Right pile -->
+    <ellipse cx="380" cy="215" rx="60" ry="18"/><ellipse cx="395" cy="207" rx="45" ry="14"/>
+    <ellipse cx="370" cy="200" rx="35" ry="11"/>
+  </g>
+  <!-- Coin highlights -->
+  <g fill="#f0c040" opacity=".7">
+    <ellipse cx="100" cy="207" rx="42" ry="11"/><ellipse cx="85" cy="200" rx="30" ry="8"/>
+    <ellipse cx="240" cy="208" rx="60" ry="14"/><ellipse cx="240" cy="199" rx="44" ry="11"/>
+    <ellipse cx="380" cy="207" rx="42" ry="11"/>
+  </g>
+  <!-- Individual shiny coins scattered -->
+  <g fill="#f0c840">
+    <circle cx="50"  cy="212" r="7"/><circle cx="160" cy="208" r="6"/><circle cx="200" cy="215" r="8"/>
+    <circle cx="290" cy="210" r="7"/><circle cx="340" cy="213" r="6"/><circle cx="430" cy="209" r="8"/>
+    <circle cx="130" cy="203" r="5"/><circle cx="310" cy="205" r="5"/><circle cx="455" cy="215" r="6"/>
+  </g>
+  <!-- GEMS scattered -->
+  <g>
+    <polygon points="175,195 180,188 185,195 180,202" fill="#e040a0" opacity=".9"/>
+    <polygon points="258,188 264,181 270,188 264,195" fill="#40e0e0" opacity=".9"/>
+    <polygon points="295,193 301,186 307,193 301,200" fill="#9040e0" opacity=".9"/>
+    <polygon points="145,205 150,198 155,205 150,212" fill="#40b0e0" opacity=".8"/>
+    <polygon points="350,198 355,191 360,198 355,205" fill="#e06040" opacity=".85"/>
+    <polygon points="410,203 416,196 422,203 416,210" fill="#40e080" opacity=".8"/>
+  </g>
+  <!-- Open chest in center-left, overflowing -->
+  <rect x="168" y="165" width="130" height="58" rx="3" fill="#7a4010"/>
+  <rect x="168" y="165" width="130" height="58" rx="3" fill="none" stroke="#d4a030" stroke-width="2"/>
+  <path d="M164,165 Q233,133 302,165 L302,175 Q233,143 164,175 Z" fill="#9a5515"/>
+  <path d="M164,165 Q233,133 302,165" fill="none" stroke="#d4a030" stroke-width="2"/>
+  <rect x="170" y="188" width="126" height="5" fill="#d4a030" rx="1"/>
+  <!-- Overflowing coins from chest -->
+  <g fill="#f0c040">
+    <circle cx="210" cy="175" r="5"/><circle cx="228" cy="172" r="6"/>
+    <circle cx="246" cy="174" r="5"/><circle cx="263" cy="177" r="4"/>
+  </g>
+  <!-- Sparkle rays from treasure -->
+  <g stroke="#f0e040" stroke-width="1.2" opacity=".45">
+    <line x1="240" y1="183" x2="240" y2="155"/><line x1="210" y1="185" x2="192" y2="162"/>
+    <line x1="270" y1="185" x2="288" y2="162"/>
+    <line x1="190" y1="195" x2="168" y2="180"/><line x1="290" y1="195" x2="312" y2="180"/>
+    <line x1="175" y1="208" x2="155" y2="198"/><line x1="305" y1="208" x2="325" y2="198"/>
+  </g>
+  <!-- Trophy/crown at top of pile -->
+  <text x="240" y="158" text-anchor="middle" font-size="26" fill="#f0d040" opacity=".9">👑</text>
+  <!-- Golden sparkle stars -->
+  <g fill="#ffe060">
+    <polygon points="240,148 242,154 248,154 243,158 245,164 240,160 235,164 237,158 232,154 238,154" opacity=".9"/>
+    <polygon points="170,158 172,163 177,163 173,166 175,171 170,168 165,171 167,166 163,163 168,163" opacity=".6" transform="scale(.75) translate(57,42)"/>
+    <polygon points="310,152 312,157 317,157 313,160 315,165 310,162 305,165 307,160 303,157 308,157" opacity=".6" transform="scale(.7) translate(130,50)"/>
+  </g>
+</svg>`
+};
+
+// Merge into SCENE_ART
+Object.assign(SCENE_ART, SCENE_ART_EXTRA);
+const INTRO_SCENES=[
+  {
+    art:'mountain',
+    num:'Escena I',
+    text:'Se rumorea que dentro del profundo bosque se encuentra un laberinto que ni los más grandes guerreros pueden superar…'
+  },
+  {
+    art:'knight',
+    num:'Escena II',
+    text:'Pero un joven caballero, armado de valor y conocimiento, estaba dispuesto a aceptar el reto.'
+  },
+  {
+    art:'entering',
+    num:'Escena III',
+    text:'¿Podrá este joven caballero superar el laberinto y encontrar el más grande tesoro?'
+  },
+];
+const OUTRO_SCENES=[
+  {
+    art:'chest',
+    num:'Escena Final · I',
+    text:'El caballero había encontrado la salida y con ella un cofre del tesoro que brillaba como mil soles.'
+  },
+  {
+    art:'scroll',
+    num:'Escena Final · II',
+    text:''
+  },
+];
+const KNIGHT_OUTRO_SCENES=[
+  {
+    art:'chest',
+    num:'Escena Final · I',
+    text:'El caballero había superado el laberinto más oscuro y peligroso, encontrando un cofre que brillaba con luz propia.'
+  },
+  {
+    art:'treasure_room',
+    num:'Escena Final · II',
+    text:'La sala del tesoro reveló montañas de monedas de oro, joyas y riquezas inimaginables. ¡El caballero se había ganado todo el tesoro del Laberinto del Radián!'
+  },
+];
+const TIMEOUT_SCENES=[
+  {
+    art:'lost_knight',
+    num:'Fin',
+    text:'Al caballero se le acabó el tiempo y se cerró la salida. Ahora está atrapado dentro del laberinto por toda la eternidad…'
+  },
+];
+
+let currentScenes=[];
+let sceneIdx=0;
+let afterScenesCallback=null;
+
+function showTimeoutCutscene(){
+  stopMusic();
+  currentScenes=TIMEOUT_SCENES;
+  sceneIdx=0;
+  afterScenesCallback=()=>{
+    document.getElementById('cutsceneScreen').classList.remove('on');
+    document.getElementById('loseScreen').classList.add('on');
+    document.getElementById('loseTitle').textContent='Tiempo agotado';
+    document.getElementById('loseSub').textContent='El caballero ha quedado atrapado en el laberinto por toda la eternidad…';
+  };
+  showCurrentScene();
+  document.getElementById('cutsceneScreen').classList.add('on');
+}
+function startCutscene(){
+  initAudio();
+  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
+  stopMenuMusic();
+  document.getElementById('menuScreen').style.display='none';
+  document.getElementById('winScreen').classList.remove('on');
+  document.getElementById('loseScreen').classList.remove('on');
+  currentScenes=INTRO_SCENES;
+  sceneIdx=0;
+  afterScenesCallback=()=>launchGame();
+  showCurrentScene();
+  document.getElementById('cutsceneScreen').classList.add('on');
+}
+function retryGame(){
+  const ls=document.getElementById('loseScreen');
+  ls.classList.remove('on');
+  ls.style.display='';
+  if(knightMode){
+    showKnightConfirm();
+  } else {
+    startCutscene();
+  }
+}
+
+function startKnightCutscene(){
+  initAudio();
+  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
+  stopMenuMusic();
+  document.getElementById('menuScreen').style.display='none';
+  document.getElementById('winScreen').classList.remove('on');
+  document.getElementById('loseScreen').classList.remove('on');
+  // Show knight confirm overlay instead of intro scenes
+  showKnightConfirm();
+}
+
+function showKnightConfirm(){
+  document.getElementById('knightConfirmOverlay').classList.add('on');
+}
+function acceptKnightChallenge(){
+  document.getElementById('knightConfirmOverlay').classList.remove('on');
+  launchKnightMode();
+}
+function declineKnightChallenge(){
+  document.getElementById('knightConfirmOverlay').classList.remove('on');
+  showMenu();
+}
+
+function showOutro(){
+  const scenes=knightMode?KNIGHT_OUTRO_SCENES:OUTRO_SCENES;
+  currentScenes=scenes;
+  sceneIdx=0;
+  afterScenesCallback=()=>showWinScreen();
+  showCurrentScene();
+  document.getElementById('cutsceneScreen').classList.add('on');
+}
+
+function showCurrentScene(){
+  const s=currentScenes[sceneIdx];
+  document.getElementById('csArtWrap').innerHTML=SCENE_ART[s.art];
+  document.getElementById('csSceneNum').textContent=s.num+' / '+currentScenes.length;
+  const narEl=document.getElementById('csNarration');
+  narEl.style.animation='none';
+  void narEl.offsetWidth;
+  narEl.style.animation='fadeText .6s ease';
+  narEl.textContent=s.text;
+  const btn=document.getElementById('csBtnNext');
+  const isLast=sceneIdx===currentScenes.length-1;
+  const isEnding=(currentScenes===OUTRO_SCENES||currentScenes===KNIGHT_OUTRO_SCENES||currentScenes===TIMEOUT_SCENES);
+  btn.textContent=isLast?(isEnding?'⚔ Terminar ⚔':'⚔ Comenzar ⚔'):'Continuar →';
+}
+
+function nextScene(){
+  sceneIdx++;
+  if(sceneIdx<currentScenes.length){
+    showCurrentScene();
+  } else {
+    document.getElementById('cutsceneScreen').classList.remove('on');
+    if(afterScenesCallback) afterScenesCallback();
+  }
+}
+
+/* =====================================================================
+   AUDIO
+   ===================================================================== */
+let audioCtx=null,musicGain=null,menuMusicGain=null,sfxGain=null;
+let musicPlaying=false,musicInterval=null;
+let menuMusicPlaying=false,menuMusicInterval=null;
+let melodyIdx=0,bassIdx=0,melodyNextTime=0,bassNextTime=0;
+let menuMelIdx=0,menuMelTime=0;
+const BEAT=60/82;
+const N={G2:98,A2:110,C3:130.81,D3:146.83,E3:164.81,F3:174.61,
+  G3:196,A3:220,B3:246.94,C4:261.63,D4:293.66,E4:329.63,
+  F4:349.23,G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,
+  E5:659.25,F5:698.46,G5:784,A5:880};
+const MELODY=[
+  [N.D4,1],[N.E4,.5],[N.F4,.5],[N.G4,1],[N.A4,1],
+  [N.G4,.5],[N.F4,.5],[N.E4,1],[N.D4,2],
+  [N.A4,.5],[N.A4,.5],[N.B4,1],[N.A4,1],[N.G4,1],
+  [N.F4,.5],[N.G4,.5],[N.A4,1],[N.G4,2],
+  [N.D4,1],[N.F4,.5],[N.G4,.5],[N.A4,1],[N.G4,.5],[N.F4,.5],
+  [N.E4,1],[N.D4,.5],[N.E4,.5],[N.F4,2],
+  [N.G4,1],[N.F4,.5],[N.E4,.5],[N.D4,1],[N.E4,.5],[N.F4,.5],
+  [N.G4,1],[N.A4,1],[N.D4,3],
+];
+const BASS=[
+  [N.D3,2],[N.A3,2],[N.G3,2],[N.D3,2],
+  [N.D3,2],[N.A3,2],[N.C4,2],[N.G3,2],
+  [N.D3,2],[N.A3,2],[N.G3,2],[N.F3,2],
+  [N.G3,2],[N.A3,2],[N.D3,4],
+];
+// Melodía del menú — marcha heroica en Do Mayor, 4/4, sin patrón de cumpleaños
+// Basada en saltos de cuarta/quinta y ritmo de marcha (negras y corcheas, sin vals)
+const BEAT_MENU=60/100; // 100 BPM
+const MENU_MELODY=[
+  // Frase 1 — fanfarria ascendente
+  [N.C4,1],[N.E4,1],[N.G4,1],[N.C5,1],
+  [N.G4,.5],[N.E4,.5],[N.G4,1],[N.C5,2],
+  // Frase 2 — contrapunto descendente
+  [N.A4,1],[N.F4,1],[N.D4,1],[N.F4,1],
+  [N.E4,1],[N.G4,1],[N.C4,2],
+  // Frase 3 — clímax épico
+  [N.E4,.5],[N.G4,.5],[N.C5,1],[N.E5,1],[N.D5,1],
+  [N.C5,1],[N.B4,.5],[N.C5,.5],[N.G4,2],
+  // Frase 4 — resolución triunfal
+  [N.F4,1],[N.A4,1],[N.C5,1],[N.A4,.5],[N.G4,.5],
+  [N.E4,1],[N.D4,1],[N.C4,3],
+];
+
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const master=audioCtx.createGain();master.gain.value=1;master.connect(audioCtx.destination);
+  musicGain=audioCtx.createGain();musicGain.gain.value=0.10;musicGain.connect(master);
+  menuMusicGain=audioCtx.createGain();menuMusicGain.gain.value=0.20;menuMusicGain.connect(master);
+  sfxGain=audioCtx.createGain();sfxGain.gain.value=0.65;sfxGain.connect(master);
+}
+function _note(freq,start,dur,type,vol,dest){
+  if(!audioCtx||!dest)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;
+  g.gain.setValueAtTime(0,start);
+  g.gain.linearRampToValueAtTime(vol,start+0.015);
+  g.gain.exponentialRampToValueAtTime(0.001,start+dur*0.88);
+  o.connect(g);g.connect(dest);o.start(start);o.stop(start+dur);
+}
+function scheduleMusicTick(){
+  if(!musicPlaying||!audioCtx)return;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  const ahead=audioCtx.currentTime+0.5;
+  while(melodyNextTime<ahead){
+    const [f,d]=MELODY[melodyIdx];
+    _note(f,melodyNextTime,d*BEAT*0.85,'triangle',0.14,musicGain);
+    melodyNextTime+=d*BEAT;melodyIdx=(melodyIdx+1)%MELODY.length;
+  }
+  while(bassNextTime<ahead){
+    const [f,d]=BASS[bassIdx];
+    _note(f,bassNextTime,d*BEAT*0.7,'sine',0.09,musicGain);
+    bassNextTime+=d*BEAT;bassIdx=(bassIdx+1)%BASS.length;
+  }
+}
+function startMusic(){
+  if(!audioCtx||musicPlaying)return;
+  musicPlaying=true;
+  const now=audioCtx.currentTime+0.2;
+  melodyNextTime=now;bassNextTime=now;melodyIdx=0;bassIdx=0;
+  if(musicInterval)clearInterval(musicInterval);
+  musicInterval=setInterval(scheduleMusicTick,250);
+  scheduleMusicTick();
+}
+function stopMusic(){
+  musicPlaying=false;
+  if(musicInterval){clearInterval(musicInterval);musicInterval=null;}
+}
+function scheduleMenuTick(){
+  if(!menuMusicPlaying||!audioCtx)return;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  const ahead=audioCtx.currentTime+0.5;
+  while(menuMelTime<ahead){
+    const [f,d]=MENU_MELODY[menuMelIdx];
+    // Main fanfare voice
+    _note(f,menuMelTime,d*BEAT_MENU*0.82,'square',0.10,menuMusicGain);
+    // Harmony a third below (adds richness)
+    _note(f*0.794,menuMelTime,d*BEAT_MENU*0.75,'triangle',0.06,menuMusicGain);
+    menuMelTime+=d*BEAT_MENU;
+    menuMelIdx=(menuMelIdx+1)%MENU_MELODY.length;
+  }
+}
+function startMenuMusic(){
+  if(!audioCtx||menuMusicPlaying)return;
+  menuMusicPlaying=true;
+  menuMelTime=audioCtx.currentTime+0.2;
+  menuMelIdx=0;
+  if(menuMusicInterval)clearInterval(menuMusicInterval);
+  menuMusicInterval=setInterval(scheduleMenuTick,250);
+  scheduleMenuTick();
+}
+function stopMenuMusic(){
+  menuMusicPlaying=false;
+  if(menuMusicInterval){clearInterval(menuMusicInterval);menuMusicInterval=null;}
+}
+
+function sfx_step(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;_note(90,t,0.07,'sine',0.12,sfxGain)}
+function sfx_question(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;
+  // Mysterious rising arpeggio
+  [330,415,494,622].forEach((f,i)=>_note(f,t+i*.08,.2,'sine',.18,sfxGain));
+  _note(622,t+.36,.4,'triangle',.12,sfxGain);
+}
+function sfx_correct(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[523,659,784,1047].forEach((f,i)=>_note(f,t+i*.1,.22,'triangle',.22,sfxGain))}
+function sfx_wrong(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[300,220,160].forEach((f,i)=>_note(f,t+i*.1,.18,'sawtooth',.18,sfxGain))}
+function sfx_cardFlip(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';o.frequency.setValueAtTime(500,t);o.frequency.exponentialRampToValueAtTime(250,t+.06);g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.001,t+.06);o.connect(g);g.connect(sfxGain);o.start(t);o.stop(t+.06)}
+function sfx_match(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[440,550,660].forEach((f,i)=>_note(f,t+i*.12,.28,'triangle',.2,sfxGain))}
+function sfx_noMatch(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;_note(180,t,.14,'sine',.12,sfxGain)}
+function sfx_allMatched(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[523,659,784,880,1047,1318].forEach((f,i)=>_note(f,t+i*.09,.25,'triangle',.24,sfxGain))}
+function sfx_keyPickup(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[523,659,784,1047,1319].forEach((f,i)=>_note(f,t+i*.07,.22,'triangle',.2,sfxGain))}
+function sfx_doorOpen(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(100,t);o.frequency.exponentialRampToValueAtTime(40,t+.55);g.gain.setValueAtTime(.16,t);g.gain.exponentialRampToValueAtTime(.001,t+.55);o.connect(g);g.connect(sfxGain);o.start(t);o.stop(t+.55)}
+function sfx_win(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[392,494,587,784,587,784].forEach((f,i)=>{_note(f,t+i*.18,i===5?.8:.22,'triangle',.26,sfxGain)})}
+function sfx_lose(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[440,330,262,196].forEach((f,i)=>_note(f,t+i*.22,.32,'sawtooth',.2,sfxGain))}
+function sfx_phaseChange(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;[392,494,587,494,587,784].forEach((f,i)=>_note(f,t+i*.14,.3,'triangle',.22,sfxGain))}
+function sfx_torchPickup(){if(!audioCtx||!sfxGain)return;const t=audioCtx.currentTime;
+  // Warm crackling pickup — low thump + ascending brightness
+  _note(180,t,.12,'sawtooth',.15,sfxGain);
+  [440,554,659].forEach((f,i)=>_note(f,t+i*.07,.18,'triangle',.18,sfxGain));
+}
+
+/* =====================================================================
+   MAZE GENERATION
+   ===================================================================== */
+function generateMaze21(){
+  const rows=21,cols=21;
+  const g=[];for(let r=0;r<rows;r++)g[r]=new Array(cols).fill(WALL);
+  function carve(r,c){
+    g[r][c]=FLOOR;
+    const dirs=[[0,2],[2,0],[0,-2],[-2,0]];
+    for(let i=dirs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[dirs[i],dirs[j]]=[dirs[j],dirs[i]];}
+    for(const [dr,dc] of dirs){const nr=r+dr,nc=c+dc;
+      if(nr>0&&nr<rows-1&&nc>0&&nc<cols-1&&g[nr][nc]===WALL){g[r+dr/2][c+dc/2]=FLOOR;carve(nr,nc);}
+    }
+  }
+  carve(1,1);return g;
+}
+function bfsPath(world,sr,sc,er,ec,passExtra=[]){
+  const rows=world.length,cols=world[0].length,pass=new Set([FLOOR,...passExtra]);
+  const prev=Array.from({length:rows},()=>Array(cols).fill(null));
+  const seen=Array.from({length:rows},()=>Array(cols).fill(false));
+  const q=[[sr,sc]];seen[sr][sc]=true;
+  while(q.length){
+    const [r,c]=q.shift();
+    if(r===er&&c===ec){const path=[];let cur=[r,c];while(cur){path.unshift(cur);cur=prev[cur[0]][cur[1]];}return path;}
+    for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&!seen[nr][nc]&&pass.has(world[nr][nc])){seen[nr][nc]=true;prev[nr][nc]=[r,c];q.push([nr,nc]);}
+    }
+  }
+  return null;
+}
+function bfsDist(world,sr,sc,minC,maxC){
+  const rows=world.length,cols=world[0].length;
+  const dist=Array.from({length:rows},()=>Array(cols).fill(-1));
+  const q=[[sr,sc]];dist[sr][sc]=0;
+  while(q.length){
+    const [r,c]=q.shift();
+    for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&dist[nr][nc]===-1&&nc>=minC&&nc<=maxC
+         &&(world[nr][nc]===FLOOR||world[nr][nc]===KEY_CELL)){dist[nr][nc]=dist[r][c]+1;q.push([nr,nc]);}
+    }
+  }
+  return dist;
+}
+function farthestCell(dist,minC,maxC){
+  let best=null,bestD=0;
+  for(let r=0;r<dist.length;r++)for(let c=minC;c<=maxC;c++)if(dist[r][c]>bestD){bestD=dist[r][c];best=[r,c];}
+  return best||[1,1];
+}
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let cvs,ctx,fogCvs,fogCtx;
+let world,player,keyCell,exitCell,checkpoints,visited,questions;
+let lives,answered,state,hasKey,phase;
+let pendingMove,activeCP;
+let tick=0,rafId=null;
+const CG={cards:[],first:null,second:null,matched:0,canFlip:true};
+
+// Knight mode
+let knightMode=false;
+let knightUnlocked=false;
+let torchBoostEnd=0;      // audioCtx.currentTime timestamp when boost expires
+let activeFogR=170;       // dynamic fog radius (changes with torch in KM)
+let kmTimeLeft=KM_TIME_LIMIT; // countdown seconds
+
+// Timer
+let timerStart=0,timerElapsed=0,timerRunning=false,timerInterval=null;
+const leaderboard=[]; // [{name,secs}]
+
+function fmtTime(secs){
+  const m=String(Math.floor(secs/60)).padStart(2,'0');
+  const s=String(secs%60).padStart(2,'0');
+  return m+':'+s;
+}
+function startTimer(){
+  timerStart=Date.now();timerElapsed=0;timerRunning=true;
+  kmTimeLeft=KM_TIME_LIMIT;
+  if(timerInterval)clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    if(!timerRunning)return;
+    timerElapsed=Math.floor((Date.now()-timerStart)/1000);
+    if(knightMode){
+      kmTimeLeft=Math.max(0,KM_TIME_LIMIT-timerElapsed);
+      const el=document.getElementById('timerDisplay');
+      el.textContent=fmtTime(kmTimeLeft);
+      el.style.color=kmTimeLeft<=30?'#ff4040':'#f0c060';
+      el.style.textShadow=kmTimeLeft<=30?'0 0 12px rgba(255,60,60,.7)':'0 0 12px rgba(240,160,50,.4)';
+      if(kmTimeLeft<=0&&state==='playing'){
+        state='timeout';stopTimer();sfx_lose();
+        setTimeout(()=>showTimeoutCutscene(),400);
+      }
+    } else {
+      document.getElementById('timerDisplay').textContent=fmtTime(timerElapsed);
+    }
+  },500);
+}
+function stopTimer(){
+  timerRunning=false;
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  timerElapsed=Math.floor((Date.now()-timerStart)/1000);
+  document.getElementById('timerDisplay').textContent=fmtTime(timerElapsed);
+}
+
+/* =====================================================================
+   NAV
+   ===================================================================== */
+function showMenu(){
+  stopMusic();stopMenuMusic();stopTimer();
+  ['gameArea','gameTitle','gameSubtitle'].forEach(id=>document.getElementById(id).style.display='none');
+  // Remove class AND clear any inline display styles that were force-set
+  ['winScreen','loseScreen','quizOverlay','cardOverlay'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('on');
+    el.style.display='';
+  });
+  document.getElementById('cutsceneScreen').classList.remove('on');
+  document.getElementById('menuScreen').style.display='flex';
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  state='menu';
+  const showKM=knightUnlocked;
+  document.getElementById('btnKnightMode').style.display=showKM?'block':'none';
+  document.getElementById('kmDesc').style.display=showKM?'block':'none';
+  initAudio();
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+  startMenuMusic();
+}
+
+function launchGame(){
+  stopMenuMusic();knightMode=false;
+  document.getElementById('menuScreen').style.display='none';
+  document.getElementById('cutsceneScreen').classList.remove('on');
+  document.getElementById('gameTitle').style.display='block';
+  document.getElementById('gameSubtitle').style.display='block';
+  document.getElementById('gameArea').style.display='flex';
+  startGame();
+  startMusic();
+}
+
+function launchKnightMode(){
+  stopMenuMusic();knightMode=true;
+  document.getElementById('menuScreen').style.display='none';
+  document.getElementById('cutsceneScreen').classList.remove('on');
+  document.getElementById('gameTitle').style.display='block';
+  document.getElementById('gameSubtitle').style.display='block';
+  document.getElementById('gameArea').style.display='flex';
+  startGame();
+  startMusic();
+}
+
+/* =====================================================================
+   INIT GAME
+   ===================================================================== */
+function placeCheckpoints(path,count,startQ){
+  if(!path||path.length<count+2)return[];
+  const usable=path.slice(1,-1),step=Math.floor(usable.length/(count+1)),cps=[];
+  for(let i=1;i<=count;i++){const [r,c]=usable[Math.min(i*step,usable.length-1)];cps.push({row:r,col:c,answered:false,qIdx:startQ+i-1});}
+  return cps;
+}
+function placeTorches(count){
+  // Scatter torches on random floor cells, avoiding special cells and start
+  const candidates=[];
+  for(let r=0;r<W_ROWS;r++)
+    for(let c=0;c<W_COLS;c++)
+      if(world[r][c]===FLOOR&&!(r===1&&c===1)&&!(r===DOOR_ROW&&c===DOOR_COL))
+        candidates.push([r,c]);
+  // Shuffle
+  for(let i=candidates.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[candidates[i],candidates[j]]=[candidates[j],candidates[i]];}
+  // Avoid checkpoint/keyCell positions
+  const reserved=new Set(checkpoints.map(cp=>`${cp.row},${cp.col}`));
+  reserved.add(`${keyCell.row},${keyCell.col}`);reserved.add(`${exitCell.row},${exitCell.col}`);
+  let placed=0;
+  for(const [r,c] of candidates){
+    if(placed>=count)break;
+    if(!reserved.has(`${r},${c}`)){world[r][c]=TORCH;placed++;}
+  }
+}
+function startGame(){
+  cvs=document.getElementById('mainCanvas');ctx=cvs.getContext('2d');
+  if(!fogCvs){fogCvs=document.createElement('canvas');fogCvs.width=VIEW_W;fogCvs.height=VIEW_H;fogCtx=fogCvs.getContext('2d');}
+  if('ontouchstart' in window)document.getElementById('touchPad').style.display='flex';
+  if(knightMode){
+    // Always include at least 2 of the 4 exclusive knight questions (indices 6-9)
+    const base=[...BANK_KNIGHT.slice(0,6)].sort(()=>Math.random()-.5);
+    const extra=[...BANK_KNIGHT.slice(6)].sort(()=>Math.random()-.5);
+    // Take 2 guaranteed from extra, fill remaining 4 from base
+    questions=[...extra.slice(0,2),...base.slice(0,4)].sort(()=>Math.random()-.5);
+  } else {
+    questions=[...BANK].sort(()=>Math.random()-.5).slice(0,6);
+  }
+  // Build world
+  const left=generateMaze21(),right=generateMaze21();
+  world=[];
+  for(let r=0;r<W_ROWS;r++){world[r]=[];for(let c=0;c<21;c++)world[r][c]=left[r][c];world[r][DOOR_COL]=WALL;for(let c=0;c<21;c++)world[r][c+22]=right[r][c];}
+  world[DOOR_ROW][20]=FLOOR;world[DOOR_ROW][21]=DOOR;world[DOOR_ROW][22]=FLOOR;
+  if(world[DOOR_ROW][19]===WALL)world[DOOR_ROW][19]=FLOOR;
+  if(world[DOOR_ROW][23]===WALL)world[DOOR_ROW][23]=FLOOR;
+  // Key & exit
+  player={row:1,col:1};
+  const dL=bfsDist(world,1,1,0,20),[kr,kc]=farthestCell(dL,1,19);
+  keyCell={row:kr,col:kc};world[kr][kc]=KEY_CELL;
+  const dR=bfsDist(world,DOOR_ROW,23,22,42),[er,ec]=farthestCell(dR,23,41);
+  exitCell={row:er,col:ec};
+  // Checkpoints
+  const pL=bfsPath(world,1,1,kr,kc,[KEY_CELL]),pR=bfsPath(world,DOOR_ROW,23,er,ec,[]);
+  checkpoints=[...placeCheckpoints(pL,CP_LEFT,0),...placeCheckpoints(pR,CP_RIGHT,CP_LEFT)];
+  // Knight mode setup
+  if(knightMode){
+    placeTorches(KM_TORCHES);
+    lives=1;activeFogR=KM_FOG_BASE;torchBoostEnd=0;
+    document.getElementById('kmBadge').style.display='flex';
+    document.getElementById('torchBarWrap').style.display='none';
+  } else {
+    lives=MAX_LIVES;activeFogR=170;torchBoostEnd=0;
+    document.getElementById('kmBadge').style.display='none';
+    document.getElementById('torchBarWrap').style.display='none';
+  }
+  answered=0;state='playing';hasKey=false;phase=1;
+  pendingMove=null;activeCP=null;
+  visited=Array.from({length:W_ROWS},()=>Array(W_COLS).fill(false));
+  revealAround(1,1);
+  ['winScreen','loseScreen','quizOverlay','cardOverlay'].forEach(id=>{
+    const el=document.getElementById(id);el.classList.remove('on');el.style.display='';
+  });
+  document.getElementById('phaseToast').classList.remove('on');
+  document.getElementById('damageFlash').style.opacity='0';
+  document.getElementById('sectionLabel').textContent='I';
+  document.getElementById('sectionDesc').textContent='Encuentra la llave';
+  updateHUD();updatePhaseBanner();
+  startTimer();
+  if(rafId)cancelAnimationFrame(rafId);
+  (function loop(){tick++;render();rafId=requestAnimationFrame(loop);})();
+}
+
+function revealAround(r,c){
+  const rad=3;
+  for(let dr=-rad;dr<=rad;dr++)for(let dc=-rad;dc<=rad;dc++){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<W_ROWS&&nc>=0&&nc<W_COLS)visited[nr][nc]=true;}
+}
+
+/* =====================================================================
+   INPUT
+   ===================================================================== */
+document.addEventListener('keydown',e=>{
+  const k=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'];
+  if(k.includes(e.key)&&document.activeElement!==document.getElementById('playerNameInput'))e.preventDefault();
+  if(state!=='playing'||document.activeElement===document.getElementById('playerNameInput'))return;
+  const m={ArrowUp:[-1,0],w:[-1,0],W:[-1,0],ArrowDown:[1,0],s:[1,0],S:[1,0],
+    ArrowLeft:[0,-1],a:[0,-1],A:[0,-1],ArrowRight:[0,1],d:[0,1],D:[0,1]};
+  if(m[e.key])tryMove(...m[e.key]);
+});
+function touchMove(dr,dc){if(state!=='playing')return;tryMove(dr,dc);}
+
+/* =====================================================================
+   MOVEMENT
+   ===================================================================== */
+function tryMove(dr,dc){
+  const nr=player.row+dr,nc=player.col+dc;
+  if(nr<0||nr>=W_ROWS||nc<0||nc>=W_COLS)return;
+  const cell=world[nr][nc];
+  if(cell===WALL)return;
+  if(cell===DOOR){
+    if(hasKey){
+      world[nr][nc]=FLOOR;sfx_doorOpen();
+      flashPhaseToast('🚪','¡Puerta abierta!','Bienvenido a la Sección II');
+      setTimeout(()=>switchToPhase2(),1400);
+    } else {
+      flashPhaseToast('🔒','Puerta bloqueada','Necesitas la llave para pasar',true);
+    }
+    return;
+  }
+  // Antorcha (Modo Caballero)
+  if(cell===TORCH){
+    world[nr][nc]=FLOOR;
+    const nowS=Date.now()/1000;
+    const rem=Math.max(0,torchBoostEnd-nowS);
+    const newRem=Math.min(rem+KM_TORCH_BOOST, 30); // cap at 30 s
+    torchBoostEnd=nowS+newRem;
+    sfx_torchPickup();updateTorchBar();
+    doMove(nr,nc);return;
+  }
+  if(cell===KEY_CELL){pendingMove={row:nr,col:nc};state='cardgame';showCardGame();return;}
+  const cp=checkpoints.find(c=>c.row===nr&&c.col===nc&&!c.answered);
+  if(cp){pendingMove={row:nr,col:nc};activeCP=cp;state='quiz';sfx_question();showQuiz(cp);return;}
+  doMove(nr,nc);
+}
+function doMove(r,c){
+  player.row=r;player.col=c;revealAround(r,c);sfx_step();
+  if(r===exitCell.row&&c===exitCell.col){
+    state='win';stopTimer();sfx_win();
+    if(!knightMode)knightUnlocked=true; // unlock after normal win
+    setTimeout(()=>showOutro(),500);
+  }
+  updateHUD();
+}
+function switchToPhase2(){
+  phase=2;updatePhaseBanner();
+  document.getElementById('sectionLabel').textContent='II';
+  document.getElementById('sectionDesc').textContent='Encuentra la salida';
+  sfx_phaseChange();
+}
+
+/* =====================================================================
+   HUD + TIMER
+   ===================================================================== */
+function updateHUD(){
+  const el=document.getElementById('heartsEl');el.innerHTML='';
+  const maxH=knightMode?1:MAX_LIVES;
+  for(let i=0;i<maxH;i++){const s=document.createElement('span');s.className='heart'+(i>=lives?' lost':'');s.textContent=knightMode?'🔥':'❤️';el.appendChild(s);}
+  document.getElementById('keysEl').textContent=`${answered} / 6`;
+  document.getElementById('hudKey').classList.toggle('no-key',!hasKey);
+}
+function updateTorchBar(){
+  const wrap=document.getElementById('torchBarWrap');
+  if(!knightMode){wrap.style.display='none';return;}
+  const nowS=Date.now()/1000;
+  const rem=Math.max(0,torchBoostEnd-nowS);
+  if(rem<=0){wrap.style.display='none';activeFogR=KM_FOG_BASE;return;}
+  wrap.style.display='flex';
+  const pct=Math.min(100,(rem/KM_TORCH_BOOST)*100);
+  document.getElementById('torchBarFill').style.width=pct+'%';
+  document.getElementById('torchBarTime').textContent=Math.ceil(rem)+'s';
+  activeFogR=KM_FOG_BASE+90*(pct/100); // fog expands with boost
+}
+// Called every frame to update torch bar smoothly
+function tickTorchBar(){
+  if(!knightMode)return;
+  updateTorchBar();
+}
+function updatePhaseBanner(){
+  const b=document.getElementById('phaseBanner');
+  if(phase===1){b.textContent='⚔ Sección I — Busca la llave 🗝️';b.classList.remove('phase2');}
+  else{b.textContent='🚪 Sección II — Encuentra la salida 🚪';b.classList.add('phase2');}
+}
+function triggerDamageFlash(){
+  const el=document.getElementById('damageFlash');el.style.opacity='1';setTimeout(()=>el.style.opacity='0',280);
+}
+let toastTm=null;
+function flashPhaseToast(icon,title,sub,brief=false){
+  const t=document.getElementById('phaseToast');
+  document.getElementById('toastIcon').textContent=icon;
+  document.getElementById('toastTitle').textContent=title;
+  document.getElementById('toastSub').textContent=sub;
+  t.classList.add('on');if(toastTm)clearTimeout(toastTm);
+  toastTm=setTimeout(()=>t.classList.remove('on'),brief?1200:2200);
+}
+
+/* =====================================================================
+   WIN SCREEN + LEADERBOARD
+   ===================================================================== */
+function showWinScreen(){
+  document.getElementById('cutsceneScreen').classList.remove('on');
+  if(knightMode) knightUnlocked=true;
+  if(!knightMode) knightUnlocked=true; // unlock on normal win too
+  const t=timerElapsed;
+  const modeLabel=knightMode?'<span style="color:#e04040;font-size:12px;letter-spacing:2px"> 🔥 MODO CABALLERO</span><br>':'';
+  document.getElementById('winStats').innerHTML=
+    modeLabel+
+    `Tiempo: <strong style="color:#f0c060;font-size:20px">${fmtTime(t)}</strong><br>`+
+    `Retos superados: <strong style="color:#f0c060">${answered} / 6</strong>`;
+  document.getElementById('playerNameInput').value='';
+  document.getElementById('leaderBoard').style.display='none';
+  document.getElementById('nameBlock').style.display='flex';
+  const cm=document.getElementById('congratsMsg');if(cm)cm.style.display='none';
+  // Knight mode invite — only after a normal win
+  document.getElementById('knightInvite').style.display=knightMode?'none':'block';
+  document.getElementById('winScreen').classList.add('on');
+}
+function saveName(){
+  const raw=document.getElementById('playerNameInput').value.trim();
+  const name=raw||'Caballero Anónimo';
+  leaderboard.push({name,secs:timerElapsed});
+  leaderboard.sort((a,b)=>a.secs-b.secs);
+  renderLeaderboard(name,timerElapsed);
+  document.getElementById('nameBlock').style.display='none';
+  // Congratulations messages
+  if(knightMode){
+    const congrats=document.getElementById('congratsMsg');
+    if(congrats){
+      congrats.style.display='block';
+      congrats.innerHTML=
+        `⚔ <strong style="color:#e04040">¡Leyenda, ${name}!</strong> ⚔<br>`+
+        `Superaste el <strong style="color:#e04040">Modo Caballero</strong> en <strong style="color:#80ff80">${fmtTime(timerElapsed)}</strong>.<br>`+
+        `<span style="color:#c08040;font-size:11px;letter-spacing:1px">¡Pocos logran esto! Eres un verdadero caballero del Radián.</span>`;
+    }
+  } else if(timerElapsed<120){
+    const congrats=document.getElementById('congratsMsg');
+    if(congrats){
+      congrats.style.display='block';
+      congrats.innerHTML=
+        `🌟 <strong style="color:#f0e060">¡Increíble, ${name}!</strong> 🌟<br>`+
+        `Completaste el laberinto en <strong style="color:#80ff80">${fmtTime(timerElapsed)}</strong>.<br>`+
+        `<span style="color:#c0a060;font-size:11px;letter-spacing:1px">¡Eres un maestro del Radián!</span>`;
+    }
+  }
+  document.getElementById('leaderBoard').style.display='block';
+}
+function renderLeaderboard(myName,mySecs){
+  const rows=document.getElementById('lbRows');rows.innerHTML='';
+  const top=leaderboard.slice(0,8);
+  const medals=['🥇','🥈','🥉'];
+  top.forEach((entry,i)=>{
+    const isMe=entry.name===myName&&entry.secs===mySecs&&i===leaderboard.findIndex(e=>e.name===myName&&e.secs===mySecs);
+    const div=document.createElement('div');
+    div.className='lb-row'+(isMe?' me':'');
+    div.innerHTML=`<span class="lb-rank">${medals[i]||'#'+(i+1)}</span>`+
+      `<span class="lb-name">${entry.name}</span>`+
+      `<span class="lb-time">${fmtTime(entry.secs)}</span>`;
+    rows.appendChild(div);
+  });
+}
+
+/* =====================================================================
+   CARD GAME
+   ===================================================================== */
+function showCardGame(){
+  const cards=[];
+  CARD_DEFS.forEach(def=>{cards.push({pairId:def.id,svg:def.svg,flipped:false,matched:false});cards.push({pairId:def.id,svg:def.svg,flipped:false,matched:false});});
+  for(let i=cards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];}
+  CG.cards=cards;CG.first=null;CG.second=null;CG.matched=0;CG.canFlip=true;
+  document.getElementById('cardProgress').textContent='Parejas: 0 / 6';
+  document.getElementById('cardMessage').textContent='';
+  renderCardGrid();document.getElementById('cardOverlay').classList.add('on');
+}
+function renderCardGrid(){
+  const grid=document.getElementById('cardGrid');grid.innerHTML='';
+  CG.cards.forEach((card,idx)=>{
+    const wrap=document.createElement('div');
+    wrap.className='card-wrap'+(card.flipped?' flipped':'')+(card.matched?' matched':'');
+    wrap.innerHTML=`<div class="card-inner"><div class="card-face card-back">${CARD_BACK_SVG}</div><div class="card-face card-front">${card.svg}</div></div>`;
+    if(!card.matched)wrap.addEventListener('click',()=>handleCardClick(idx));
+    grid.appendChild(wrap);
+  });
+}
+function handleCardClick(idx){
+  if(!CG.canFlip)return;
+  const card=CG.cards[idx];if(card.flipped||card.matched)return;
+  sfx_cardFlip();card.flipped=true;updateCardDOM(idx,true,false,false);
+  if(CG.first===null){CG.first=idx;}
+  else{
+    const first=CG.first;CG.first=null;CG.canFlip=false;
+    if(CG.cards[first].pairId===card.pairId){
+      setTimeout(()=>{sfx_match();CG.cards[first].matched=true;CG.cards[idx].matched=true;CG.matched++;
+        document.getElementById('cardProgress').textContent=`Parejas: ${CG.matched} / 6`;
+        updateCardDOM(first,true,true,false);updateCardDOM(idx,true,true,false);CG.canFlip=true;
+        if(CG.matched===6){sfx_allMatched();document.getElementById('cardMessage').textContent='🎉 ¡Todas las parejas! Tienes la llave…';setTimeout(()=>cardGameWon(),1200);}
+      },400);
+    } else {
+      setTimeout(()=>{sfx_noMatch();updateCardDOM(first,true,false,true);updateCardDOM(idx,true,false,true);
+        setTimeout(()=>{CG.cards[first].flipped=false;CG.cards[idx].flipped=false;updateCardDOM(first,false,false,false);updateCardDOM(idx,false,false,false);CG.canFlip=true;},600);
+      },600);
+    }
+  }
+}
+function updateCardDOM(idx,flipped,matched,noMatch){
+  const grid=document.getElementById('cardGrid');const wrap=grid.children[idx];if(!wrap)return;
+  wrap.className='card-wrap'+(flipped||matched?' flipped':'')+(matched?' matched':'')+(noMatch?' no-match':'');
+}
+function cardGameWon(){
+  hasKey=true;document.getElementById('cardOverlay').classList.remove('on');
+  sfx_keyPickup();flashPhaseToast('🗝️','¡Llave conseguida!','Ahora busca la puerta central');
+  const pm=pendingMove;pendingMove=null;world[pm.row][pm.col]=FLOOR;state='playing';doMove(pm.row,pm.col);updateHUD();
+}
+
+/* =====================================================================
+   QUIZ
+   ===================================================================== */
+function renderQuizLives(){
+  const el=document.getElementById('quizLives');el.innerHTML='';
+  for(let i=0;i<MAX_LIVES;i++){const s=document.createElement('span');s.className='ql-h'+(i>=lives?' lost':'');s.textContent='❤️';el.appendChild(s);}
+}
+function showQuiz(cp){
+  const q=questions[cp.qIdx%questions.length];
+  document.getElementById('questionText').textContent=q.q;document.getElementById('quizFeedback').textContent='';
+  renderQuizLives();const grid=document.getElementById('answersGrid');grid.innerHTML='';
+  ['A','B','C','D'].forEach((lbl,i)=>{const btn=document.createElement('button');btn.className='ans-btn';btn.textContent=`${lbl}) ${q.o[i]}`;btn.addEventListener('click',()=>pickAnswer(i,q.a));grid.appendChild(btn);});
+  const qo=document.getElementById('quizOverlay');
+  qo.style.display='';
+  qo.classList.add('on');
+}
+function pickAnswer(chosen,correct){
+  document.querySelectorAll('.ans-btn').forEach(b=>b.disabled=true);
+  if(chosen===correct){
+    document.querySelectorAll('.ans-btn')[chosen].classList.add('correct');
+    document.getElementById('quizFeedback').textContent='✅ ¡Correcto! El camino se abre.';
+    document.getElementById('quizFeedback').style.color='#50e065';sfx_correct();
+    activeCP.answered=true;answered++;renderQuizLives();
+    setTimeout(()=>{document.getElementById('quizOverlay').classList.remove('on');state='playing';doMove(pendingMove.row,pendingMove.col);pendingMove=null;activeCP=null;},1300);
+  } else {
+    document.querySelectorAll('.ans-btn')[chosen].classList.add('wrong');document.querySelectorAll('.ans-btn')[correct].classList.add('correct');
+    lives--;sfx_wrong();renderQuizLives();updateHUD();triggerDamageFlash();
+    const msg=lives<=0?'💀 ¡Sin vidas! Has sido derrotado.':`❌ Incorrecto. Te quedan ${lives} vida${lives===1?'':'s'}.`;
+    document.getElementById('quizFeedback').textContent=msg;document.getElementById('quizFeedback').style.color='#f05050';
+    setTimeout(()=>{
+      document.getElementById('quizOverlay').classList.remove('on');
+      document.getElementById('quizOverlay').style.display='none';
+      pendingMove=null;activeCP=null;
+      if(lives<=0){
+        state='lose';sfx_lose();stopTimer();
+        document.getElementById('loseTitle').textContent=knightMode?'Sin vida':'Sin vidas';
+        document.getElementById('loseSub').textContent='El caballero ha caído en la oscuridad del laberinto…';
+        const ls=document.getElementById('loseScreen');
+        ls.classList.add('on');
+        ls.style.display='flex';
+      } else {
+        state='playing';
+        document.getElementById('quizOverlay').style.display='';
+      }
+    },1800);
+  }
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+function render(){
+  tickTorchBar();
+  ctx.clearRect(0,0,VIEW_W,VIEW_H);
+  const px=player.col*CELL+CELL/2,py=player.row*CELL+CELL/2;
+  const ox=Math.round(VIEW_W/2-px),oy=Math.round(VIEW_H/2-py);
+  ctx.save();ctx.translate(ox,oy);
+  drawWorld();drawSpecials();drawCheckpoints();drawKnight(player.col*CELL+CELL/2,player.row*CELL+CELL/2);
+  ctx.restore();drawFog(ox,oy);drawVignette();
+}
+const PAL={wD:'#161010',wT:'#242018',wE:'#0c0a08',fA:'#1e1208',fB:'#160e06'};
+function drawWorld(){
+  for(let r=0;r<W_ROWS;r++){
+    for(let c=0;c<W_COLS;c++){
+      const x=c*CELL,y=r*CELL,cell=world[r][c];
+      if(cell===WALL){
+        ctx.fillStyle=PAL.wD;ctx.fillRect(x,y,CELL,CELL);
+        ctx.fillStyle=PAL.wT;ctx.fillRect(x,y,CELL,4);ctx.fillRect(x,y,4,CELL);
+        ctx.fillStyle=PAL.wE;ctx.fillRect(x,y+CELL-2,CELL,2);ctx.fillRect(x+CELL-2,y,2,CELL);
+        if((r*W_COLS+c)%5<2){ctx.strokeStyle='rgba(255,255,255,.02)';ctx.lineWidth=1;ctx.strokeRect(x+5,y+5,CELL-10,CELL-10);}
+      } else {
+        ctx.fillStyle=(r+c)%2===0?PAL.fA:PAL.fB;ctx.fillRect(x,y,CELL,CELL);
+        ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=.5;ctx.strokeRect(x+.5,y+.5,CELL-1,CELL-1);
+      }
+    }
+  }
+  ctx.fillStyle='rgba(30,100,40,.1)';ctx.fillRect(CELL,CELL,CELL,CELL);
+}
+function drawSpecials(){
+  // Draw torches (Knight Mode)
+  if(knightMode){
+    for(let r=0;r<W_ROWS;r++) for(let c=0;c<W_COLS;c++){
+      if(world[r][c]!==TORCH)continue;
+      const tx=c*CELL+CELL/2,ty=r*CELL+CELL/2;
+      const p=.5+.5*Math.sin(tick*.12+r*0.7+c*0.5);
+      const gt=ctx.createRadialGradient(tx,ty,0,tx,ty,CELL*.9);
+      gt.addColorStop(0,`rgba(255,160,20,${.55*p})`);gt.addColorStop(1,'rgba(255,160,20,0)');
+      ctx.fillStyle=gt;ctx.beginPath();ctx.arc(tx,ty,CELL*.9,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=.7+.3*p;ctx.font=`${Math.round(CELL*.62)}px serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🔦',tx,ty);ctx.globalAlpha=1;
+    }
+  }
+  if(world[DOOR_ROW][DOOR_COL]===DOOR){
+    const dx=DOOR_COL*CELL,dy=DOOR_ROW*CELL,p=.5+.5*Math.sin(tick*.05);
+    ctx.fillStyle='#3a1a08';ctx.fillRect(dx,dy,CELL,CELL);
+    ctx.fillStyle=`rgba(240,140,20,${.3+.2*p})`;ctx.fillRect(dx,dy,CELL,CELL);
+    ctx.strokeStyle=`rgba(240,140,20,${.8+.2*p})`;ctx.lineWidth=3;
+    for(let i=1;i<=3;i++){ctx.beginPath();ctx.moveTo(dx+i*10,dy+2);ctx.lineTo(dx+i*10,dy+CELL-2);ctx.stroke();}
+    ctx.strokeStyle=`rgba(240,140,20,${.6+.2*p})`;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(dx+2,dy+CELL/2-6);ctx.lineTo(dx+CELL-2,dy+CELL/2-6);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(dx+2,dy+CELL/2+6);ctx.lineTo(dx+CELL-2,dy+CELL/2+6);ctx.stroke();
+    ctx.fillStyle=`rgba(240,180,40,${.7+.3*p})`;ctx.beginPath();ctx.arc(dx+CELL/2,dy+CELL/2,4,0,Math.PI*2);ctx.fill();
+  }
+  if(world[keyCell.row][keyCell.col]===KEY_CELL){
+    const kx=keyCell.col*CELL+CELL/2,ky=keyCell.row*CELL+CELL/2,p=.5+.5*Math.sin(tick*.08);
+    const gk=ctx.createRadialGradient(kx,ky,0,kx,ky,CELL*1.1);
+    gk.addColorStop(0,`rgba(255,215,0,${.45*p})`);gk.addColorStop(1,'rgba(255,215,0,0)');
+    ctx.fillStyle=gk;ctx.beginPath();ctx.arc(kx,ky,CELL*1.1,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.6+.4*p;ctx.font=`${Math.round(CELL*.7)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🗝️',kx,ky);ctx.globalAlpha=1;
+  }
+  {
+    const ex=exitCell.col*CELL+CELL/2,ey=exitCell.row*CELL+CELL/2,p=.5+.5*Math.sin(tick*.045);
+    const ge=ctx.createRadialGradient(ex,ey,0,ex,ey,CELL*1.4);
+    ge.addColorStop(0,`rgba(70,130,255,${.6*p})`);ge.addColorStop(.5,`rgba(50,100,220,${.2*p})`);ge.addColorStop(1,'rgba(50,90,200,0)');
+    ctx.fillStyle=ge;ctx.beginPath();ctx.arc(ex,ey,CELL*1.4,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.55+.45*p;ctx.font=`${Math.round(CELL*.78)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🚪',ex,ey);ctx.globalAlpha=1;
+  }
+}
+function drawCheckpoints(){
+  for(const cp of checkpoints){
+    const cx=cp.col*CELL+CELL/2,cy=cp.row*CELL+CELL/2,p=.5+.5*Math.sin(tick*.09+cp.qIdx*1.5);
+    ctx.font=`${Math.round(CELL*.68)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    if(cp.answered){ctx.globalAlpha=.7;ctx.fillText('✅',cx,cy);}
+    else{
+      ctx.globalAlpha=.45+.55*p;ctx.fillText('❓',cx,cy);
+      const gw=ctx.createRadialGradient(cx,cy,0,cx,cy,CELL*.88);
+      gw.addColorStop(0,`rgba(255,195,0,${p*.2})`);gw.addColorStop(1,'rgba(255,195,0,0)');
+      ctx.globalAlpha=1;ctx.fillStyle=gw;ctx.beginPath();ctx.arc(cx,cy,CELL*.88,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
+}
+function drawKnight(x,y){
+  const B=Math.sin(tick*.13)*1.8;
+  ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(x,y+14,11,4,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#5a1870';ctx.fillRect(x-3,y-8+B,13,18);
+  ctx.fillStyle='#525870';ctx.fillRect(x-7,y-7+B,14,15);
+  ctx.fillStyle='#404460';ctx.fillRect(x-5,y-4+B,10,4);
+  ctx.fillStyle='#c8a040';ctx.fillRect(x-5,y-5+B,10,2);
+  ctx.fillStyle='#606880';ctx.fillRect(x-7,y-20+B,14,15);
+  ctx.fillStyle='#707890';ctx.fillRect(x-6,y-19+B,12,5);
+  ctx.fillStyle='#1e1e28';ctx.fillRect(x-5,y-16+B,10,6);
+  ctx.fillStyle='#80d0ff';ctx.fillRect(x-4,y-14+B,3,2);ctx.fillRect(x+1,y-14+B,3,2);
+  ctx.fillStyle='#e04020';ctx.fillRect(x-1,y-28+B,3,10);
+  ctx.fillStyle='#f07030';ctx.fillRect(x,y-32+B,2,6);
+  ctx.fillStyle='#c8c8d8';ctx.fillRect(x+9,y-18+B,3,24);
+  ctx.fillStyle='#c0a040';ctx.fillRect(x+5,y-8+B,11,3);
+  ctx.fillStyle='#a08030';ctx.fillRect(x+10,y-20+B,3,4);
+  ctx.fillStyle='#7a2810';
+  ctx.beginPath();ctx.moveTo(x-8,y-10+B);ctx.lineTo(x-18,y-8+B);ctx.lineTo(x-18,y+4+B);ctx.lineTo(x-13,y+10+B);ctx.lineTo(x-8,y+6+B);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#c8a040';ctx.fillRect(x-16,y-5+B,5,2);ctx.fillRect(x-14,y-7+B,2,6);
+}
+function drawFog(ox,oy){
+  const FR=activeFogR;
+  fogCtx.clearRect(0,0,VIEW_W,VIEW_H);fogCtx.fillStyle='#000';fogCtx.fillRect(0,0,VIEW_W,VIEW_H);
+  fogCtx.globalCompositeOperation='destination-out';
+
+  // In normal mode only: dim reveal of visited cells
+  if(!knightMode){
+    fogCtx.fillStyle='rgba(255,255,255,0.36)';
+    for(let r=0;r<W_ROWS;r++){for(let c=0;c<W_COLS;c++){if(!visited[r][c])continue;const fx=c*CELL+ox,fy=r*CELL+oy;if(fx>-CELL&&fx<VIEW_W+CELL&&fy>-CELL&&fy<VIEW_H+CELL)fogCtx.fillRect(fx,fy,CELL,CELL);}}
+  }
+  // Vision circle (both modes)
+  const pcx=player.col*CELL+CELL/2+ox,pcy=player.row*CELL+CELL/2+oy;
+  const g=fogCtx.createRadialGradient(pcx,pcy,0,pcx,pcy,FR);
+  g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.62,'rgba(255,255,255,1)');g.addColorStop(.84,'rgba(255,255,255,.82)');g.addColorStop(1,'rgba(255,255,255,0)');
+  fogCtx.fillStyle=g;fogCtx.beginPath();fogCtx.arc(pcx,pcy,FR,0,Math.PI*2);fogCtx.fill();
+  if(!knightMode){
+    const g2=fogCtx.createRadialGradient(pcx,pcy,FR*.6,pcx,pcy,FR*1.25);
+    g2.addColorStop(0,'rgba(255,255,255,.52)');g2.addColorStop(1,'rgba(255,255,255,0)');
+    fogCtx.fillStyle=g2;fogCtx.beginPath();fogCtx.arc(pcx,pcy,FR*1.25,0,Math.PI*2);fogCtx.fill();
+  }
+  fogCtx.globalCompositeOperation='source-over';
+  ctx.drawImage(fogCvs,0,0);
+
+  // Torch tint
+  const flicker=1+Math.sin(tick*.31)*.013+Math.sin(tick*.71)*.007,tr=FR*.9*flicker;
+  const torch=ctx.createRadialGradient(pcx,pcy,0,pcx,pcy,tr);
+  torch.addColorStop(0,'rgba(255,185,60,.34)');torch.addColorStop(.45,'rgba(255,140,30,.18)');torch.addColorStop(.75,'rgba(220,90,10,.07)');torch.addColorStop(1,'rgba(220,90,10,0)');
+  ctx.fillStyle=torch;ctx.beginPath();ctx.arc(pcx,pcy,tr,0,Math.PI*2);ctx.fill();
+  const bright=ctx.createRadialGradient(pcx,pcy,0,pcx,pcy,FR*.4);
+  bright.addColorStop(0,'rgba(255,240,200,.2)');bright.addColorStop(.6,'rgba(255,220,160,.06)');bright.addColorStop(1,'rgba(255,220,160,0)');
+  ctx.fillStyle=bright;ctx.beginPath();ctx.arc(pcx,pcy,FR*.4,0,Math.PI*2);ctx.fill();
+
+  // Knight mode: draw key and exit markers ON TOP of fog so always visible
+  if(knightMode){
+    ctx.save();ctx.translate(ox,oy);
+    const p=.5+.5*Math.sin(tick*.08);
+    // Key beacon
+    if(world[keyCell.row][keyCell.col]===KEY_CELL){
+      const kx=keyCell.col*CELL+CELL/2,ky=keyCell.row*CELL+CELL/2;
+      const gk=ctx.createRadialGradient(kx,ky,0,kx,ky,CELL*1.1);
+      gk.addColorStop(0,`rgba(255,215,0,${.6*p})`);gk.addColorStop(1,'rgba(255,215,0,0)');
+      ctx.fillStyle=gk;ctx.beginPath();ctx.arc(kx,ky,CELL*1.1,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=.7+.3*p;ctx.font=`${Math.round(CELL*.7)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🗝️',kx,ky);ctx.globalAlpha=1;
+    }
+    // Exit beacon
+    const ex=exitCell.col*CELL+CELL/2,ey=exitCell.row*CELL+CELL/2;
+    const ge=ctx.createRadialGradient(ex,ey,0,ex,ey,CELL*1.4);
+    ge.addColorStop(0,`rgba(70,130,255,${.6*p})`);ge.addColorStop(.5,`rgba(50,100,220,${.2*p})`);ge.addColorStop(1,'rgba(50,90,200,0)');
+    ctx.fillStyle=ge;ctx.beginPath();ctx.arc(ex,ey,CELL*1.4,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.55+.45*p;ctx.font=`${Math.round(CELL*.78)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🚪',ex,ey);ctx.globalAlpha=1;
+    ctx.restore();
+  }
+}
+function drawVignette(){
+  const g=ctx.createRadialGradient(VIEW_W/2,VIEW_H/2,VIEW_W*.2,VIEW_W/2,VIEW_H/2,VIEW_W*.72);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.72)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,VIEW_W,VIEW_H);
+}
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+window.addEventListener('load',()=>{
+  ['gameArea','gameTitle','gameSubtitle'].forEach(id=>document.getElementById(id).style.display='none');
+  state='menu';
+  // Init audio + start menu music on very first user click anywhere
+  document.addEventListener('click',function initOnce(){
+    initAudio();
+    if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+    if(state==='menu')startMenuMusic();
+    document.removeEventListener('click',initOnce);
+  },{once:true});
+});
+</script>
+</body>
+</html>
